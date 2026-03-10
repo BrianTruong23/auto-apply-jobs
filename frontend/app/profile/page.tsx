@@ -1,4 +1,5 @@
 import { getProfile } from "../../lib/api";
+import { ProfileEditor } from "../../components/profile-editor";
 
 export default async function ProfilePage() {
   const profile = await getProfile();
@@ -30,6 +31,10 @@ export default async function ProfilePage() {
           <article className="answer-card">
             <strong>Skills</strong>
             <p>{profile.skills.join(", ")}</p>
+          </article>
+          <article className="answer-card">
+            <h2>Edit profile</h2>
+            <ProfileEditor profile={profile} />
           </article>
         </div>
       </section>

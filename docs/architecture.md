@@ -11,6 +11,7 @@ Job Application Hub is a modular system for discovering, ranking, managing, and 
 - Spreadsheet sync targets Google Sheets first, but the database remains the source of truth.
 - LLM answering already exists externally; this MVP defines the integration boundary and stores answer memory.
 - Browser automation starts in assisted mode only. Final submission remains user-confirmed.
+- Supabase Postgres is the intended production database target.
 
 ## System Architecture Diagram
 
@@ -24,7 +25,7 @@ Job Application Hub is a modular system for discovering, ranking, managing, and 
                                       | HTTPS / JSON
                                       v
  +-------------------+      +---------+----------+       +---------------------+
- | Brave Search API  +----->+   FastAPI Backend  +<----->+   Postgres DB       |
+ | Brave Search API  +----->+   FastAPI Backend  +<----->+  Supabase Postgres  |
  +-------------------+      |                     |       | profiles/jobs/etc.  |
                             | API + orchestration |       +----------+----------+
  +-------------------+      +----+----+----+------+                  |
@@ -50,6 +51,7 @@ Internal backend service boundaries
 ## Modules / Services
 
 - `frontend`: dashboard UI for profile, sources, jobs, answer bank, applications, and run history.
+- `frontend/lib/supabase.ts`: Supabase client boundary for future direct client-side auth/storage features.
 - `backend/api`: REST API surface.
 - `backend/services/discovery`: Brave-powered job discovery and manual URL ingestion.
 - `backend/services/parsing`: normalized job extraction and canonical field derivation.

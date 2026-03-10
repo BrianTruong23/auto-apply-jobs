@@ -67,3 +67,20 @@ export interface RunLog {
   finishedAt?: string;
   summary: string;
 }
+
+export interface DraftAnswerResult {
+  questionType: string;
+  suggestedAnswer: string;
+  reusedAnswerId?: string | null;
+  rationale: string[];
+}
+
+export interface DiscoveryResult {
+  query: string;
+  used_fallback: boolean;
+  error?: string | null;
+  created: number;
+  total_processed: number;
+  run_id: string;
+  jobs: JobRecord[];
+}

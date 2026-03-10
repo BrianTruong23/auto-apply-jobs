@@ -6,7 +6,7 @@ Human-in-the-loop MVP for discovering jobs, organizing opportunities, drafting a
 
 - Frontend: Next.js 15 + TypeScript + App Router
 - Backend: FastAPI + SQLAlchemy + Pydantic
-- Database: Postgres in production, SQLite for local skeleton/dev fallback
+- Database: Supabase Postgres in production, SQLite for local skeleton/dev fallback
 - Background work: queue abstraction with an in-memory implementation for MVP and Redis/Celery or Dramatiq later
 - Search: Brave Search API
 - Browser assistance: Playwright-oriented adapter interface
@@ -66,6 +66,28 @@ Copy:
 
 - [backend/.env.example](/Users/thangtruong/Documents/auto-apply-jobs/backend/.env.example)
 - [frontend/.env.local.example](/Users/thangtruong/Documents/auto-apply-jobs/frontend/.env.local.example)
+
+Backend env notes:
+
+- `BRAVE_SEARCH_API_KEY` powers job discovery.
+- `OPENREUTER_API` or `OPENROUTER_API_KEY` powers LLM answers through OpenRouter.
+- `OPENROUTER_MODEL` defaults to `google/gemini-2.5-flash`.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` are for the Next.js app.
+- FastAPI still needs `DATABASE_URL` or `SUPABASE_DB_URL` to connect to Supabase Postgres directly.
+
+## Running With Supabase
+
+If you want Supabase as the real database, do this:
+
+1. Create a Supabase project.
+2. Copy the project URL and publishable key into `frontend/.env.local`.
+3. Copy the Supabase Postgres connection string into `backend/.env` as `SUPABASE_DB_URL` or `DATABASE_URL`.
+4. Start the backend first, then the frontend.
+
+Important:
+
+- The `NEXT_PUBLIC_*` keys are not a replacement for the backend database URL.
+- The backend owns the current source-of-truth schema, so it must connect to Postgres directly.
 
 ## MVP Scope
 
