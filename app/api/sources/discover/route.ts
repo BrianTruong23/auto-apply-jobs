@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { canonicalKey, scoreJob, searchBrave } from "@/lib/server/domain";
 import { nextId, readStore, writeStore } from "@/lib/server/store";
 
+type DiscoveryCandidate = {
+  title: string;
+  url: string;
+  description: string;
+  meta_url: { hostname: string };
+  source_kind: "brave" | "manual" | "fallback";
+  raw_payload: Record<string, unknown>;
+};
+
 function splitArray(value: unknown) {
   return Array.isArray(value) ? value.map(String).filter(Boolean) : [];
 }
@@ -17,14 +26,28 @@ export async function POST(request: NextRequest) {
   const query = [...keywords, ...companies, ...locations, ...workplaceModes, "jobs"].join(" ").trim();
 
   const brave = await searchBrave(query);
-  const braveResults = brave?.web?.results || [];
-  const manualResults = manualUrls.map((url) => ({
+  const braveResults: DiscoveryCandidate[] = (brave?.web?.results || []).map((item) => {
+    const raw = item as Record<string, unknown>;
+    return {
+      title: String(raw.title || (keywords[0] ? toTitleCase(keywords[0]) : "Software Engineer")),
+      url: String(raw.url || ""),
+      description: String(raw.description || ""),
+      meta_url: {
+        hostname: String((raw.meta_url as { hostname?: string } | undefined)?.hostname || ""),
+      },
+      source_kind: "brave",
+      raw_payload: raw,
+    };
+  });
+  const manualResults: DiscoveryCandidate[] = manualUrls.map((url) => ({
     title: keywords[0] ? toTitleCase(keywords[0]) : "Software Engineer",
     url,
     description: `Manual URL ingestion for ${url}`,
     meta_url: { hostname: safeHostname(url) },
+    source_kind: "manual",
+    raw_payload: { url, manual: true },
   }));
-  const fallbackResults =
+  const fallbackResults: DiscoveryCandidate[] =
     braveResults.length || manualResults.length
       ? []
       : [
@@ -33,17 +56,25 @@ export async function POST(request: NextRequest) {
             url: manualUrls[0] || "https://example.com/jobs/example-role",
             description: `${companies[0] || "Example Company"} is hiring in ${locations[0] || "Remote"}.`,
             meta_url: { hostname: "example.com" },
+            source_kind: "fallback",
+            raw_payload: {
+              company: companies[0] || "Example Company",
+              location: locations[0] || "Remote",
+            },
           },
         ];
 
-  const results = [...braveResults, ...manualResults, ...fallbackResults] as Array<Record<string, unknown>>;
+  const results: DiscoveryCandidate[] = [...braveResults, ...manualResults, ...fallbackResults];
   const data = await readStore();
   let created = 0;
   const jobs = results.map((item) => {
-    const title = String(item.title || (keywords[0] ? toTitleCase(keywords[0]) : "Software Engineer"));
-    const description = String(item.description || "");
-    const hostname = String((item.meta_url as { hostname?: string } | undefined)?.hostname || "");
-    const company = companies[0] || hostname.split(".")[0].replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()) || "Unknown Company";
+    const title = item.title;
+    const description = item.description;
+    const hostname = item.meta_url.hostname;
+    const company =
+      companies[0] ||
+      hostname.split(".")[0].replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()) ||
+      "Unknown Company";
     const location = description.toLowerCase().includes("remote") ? "Remote" : locations[0] || "Unknown";
     const workplace_mode = description.toLowerCase().includes("hybrid")
       ? "hybrid"
@@ -62,13 +93,13 @@ export async function POST(request: NextRequest) {
       workplace_mode,
       status: existing?.status || "discovered",
       fit_score: score.fit_score,
-      source: braveResults.includes(item) ? "Brave Search" : fallbackResults.includes(item) ? "Discovery Fallback" : "Manual URL",
-      source_url: String(item.url || ""),
-      application_url: String(item.url || ""),
+      source: item.source_kind === "brave" ? "Brave Search" : item.source_kind === "fallback" ? "Discovery Fallback" : "Manual URL",
+      source_url: item.url,
+      application_url: item.url,
       posted_at: new Date().toISOString(),
       explanation: score.explanation,
       description_text: description,
-      raw_payload: item,
+      raw_payload: item.raw_payload,
       normalized_payload: { company, title, location, workplace_mode },
     };
     if (!existing) {
