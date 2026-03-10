@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { JobRecord } from "../types";
 
 export function JobsTable({ jobs }: { jobs: JobRecord[] }) {
@@ -21,7 +23,9 @@ export function JobsTable({ jobs }: { jobs: JobRecord[] }) {
               <div className="muted">{job.location}</div>
             </td>
             <td>
-              <div>{job.title}</div>
+              <div>
+                <Link href={`/jobs/${job.id}`}>{job.title}</Link>
+              </div>
               <div className="muted">{job.workplaceMode}</div>
             </td>
             <td>{Math.round(job.fitScore)}</td>

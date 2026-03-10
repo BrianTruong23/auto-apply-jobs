@@ -75,11 +75,13 @@ Implemented endpoints:
 - `POST /api/sources`
 - `POST /api/sources/discover`
 - `GET /api/jobs`
+- `GET /api/jobs/:id`
 - `GET /api/answers`
 - `POST /api/answers`
 - `POST /api/answers/draft`
 - `GET /api/applications`
 - `POST /api/applications`
+- `PATCH /api/applications/:id`
 - `GET /api/runs`
 - `POST /api/sync/spreadsheet`
 
@@ -100,8 +102,35 @@ Implemented endpoints:
 
 - The root of the repo is now the canonical Next.js app.
 - Existing `frontend/` and `backend/` folders are legacy scaffolding from the earlier split-app version.
-- The new unified app currently persists to a local JSON store in `.data/` so it can run immediately without a separate service.
-- `NEXT_CONNECTION_STRING` is the next step if you want me to switch the unified app from file storage to direct Postgres/Supabase persistence.
+- The unified app now uses `NEXT_CONNECTION_STRING` for Postgres/Supabase persistence when provided.
+- If `NEXT_CONNECTION_STRING` is not set, it falls back to the local JSON store in `.data/`.
+- The site now includes a job detail page and application tracking UI.
+
+## Testing
+
+Unit tests:
+
+```bash
+npm test
+```
+
+Manual verification for step 1, DB persistence:
+
+1. Set `NEXT_CONNECTION_STRING` in `.env.local` to your Supabase/Postgres connection string.
+2. Run `npm install`.
+3. Run `npm run dev`.
+4. Open `http://localhost:3000/profile` and save a profile change.
+5. Stop the app, restart it, and confirm the change persists.
+6. Open your database and verify tables such as `profiles`, `job_sources`, `jobs`, `applications`, and `runs` were created.
+
+Manual verification for step 2, job detail and applications:
+
+1. Open `http://localhost:3000/sources`.
+2. Run a discovery request to create at least one job.
+3. Open `http://localhost:3000/jobs` and click a job title.
+4. On the job detail page, create an application record.
+5. Open `http://localhost:3000/applications` and confirm the record appears.
+6. Return to the job detail page, update the application, and confirm the updated state is reflected after refresh.
 
 ## Future Scope
 

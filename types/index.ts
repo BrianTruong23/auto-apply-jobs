@@ -23,6 +23,7 @@ export interface Profile {
 
 export interface JobRecord {
   id: string;
+  canonicalKey?: string;
   company: string;
   title: string;
   location: string;
@@ -34,6 +35,7 @@ export interface JobRecord {
   applicationUrl: string;
   postedAt?: string;
   explanation: string[];
+  descriptionText?: string;
 }
 
 export interface JobSource {
@@ -83,4 +85,21 @@ export interface DiscoveryResult {
   total_processed: number;
   run_id: string;
   jobs: JobRecord[];
+}
+
+export interface ApplicationRecord {
+  id: string;
+  jobId: string;
+  company: string;
+  title: string;
+  status: string;
+  currentStep: string;
+  outcome?: string;
+  notes: string;
+}
+
+export interface JobDetailResult {
+  job: JobRecord;
+  applications: ApplicationRecord[];
+  latestApplication: ApplicationRecord | null;
 }

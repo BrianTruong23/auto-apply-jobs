@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { createApplicationRecord } from "@/lib/server/application-logic";
 import { nextId, readStore, writeStore } from "@/lib/server/store";
 
 export async function GET() {
@@ -16,16 +17,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ detail: "job not found" }, { status: 404 });
   }
 
-  const application = {
+  const application = createApplicationRecord({
     id: nextId("app", data.applications.map((item) => item.id)),
-    job_id: job.id,
-    company: job.company,
-    title: job.title,
-    status: String(payload.status || "preparing"),
-    current_step: String(payload.current_step || ""),
+    job,
+    status: payload.status ? String(payload.status) : undefined,
+    current_step: payload.current_step ? String(payload.current_step) : undefined,
     outcome: payload.outcome ? String(payload.outcome) : undefined,
-    notes: String(payload.notes || ""),
-  };
+    notes: payload.notes ? String(payload.notes) : undefined,
+  });
   data.applications.unshift(application);
   await writeStore(data);
   return NextResponse.json(application, { status: 201 });

@@ -1,5 +1,5 @@
 import { mockAnswers, mockJobs, mockRuns, mockSources } from "./mock-data";
-import type { AnswerBankEntry, JobRecord, JobSource, Profile, RunLog } from "../types";
+import type { AnswerBankEntry, ApplicationRecord, JobDetailResult, JobRecord, JobSource, Profile, RunLog } from "../types";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
@@ -25,6 +25,7 @@ export async function getJobs(): Promise<JobRecord[]> {
   const rows = await fetchJson<any[]>("/jobs", mockJobs);
   return rows.map((row) => ({
     id: row.id,
+    canonicalKey: row.canonical_key ?? row.canonicalKey,
     company: row.company,
     title: row.title,
     location: row.location,
@@ -36,6 +37,7 @@ export async function getJobs(): Promise<JobRecord[]> {
     applicationUrl: row.application_url ?? row.applicationUrl,
     postedAt: row.posted_at ?? row.postedAt,
     explanation: row.explanation ?? [],
+    descriptionText: row.description_text ?? row.descriptionText,
   }));
 }
 
@@ -103,6 +105,52 @@ export async function getRuns(): Promise<RunLog[]> {
     finishedAt: row.finished_at ?? row.finishedAt,
     summary: row.summary,
   }));
+}
+
+export async function getJob(jobId: string): Promise<JobDetailResult | null> {
+  const row = await fetchJson<any | null>(`/jobs/${jobId}`, null);
+  if (!row) {
+    return null;
+  }
+
+  return {
+    job: {
+      id: row.job.id,
+      canonicalKey: row.job.canonical_key ?? row.job.canonicalKey,
+      company: row.job.company,
+      title: row.job.title,
+      location: row.job.location,
+      workplaceMode: row.job.workplace_mode ?? row.job.workplaceMode,
+      status: row.job.status,
+      fitScore: row.job.fit_score ?? row.job.fitScore,
+      source: row.job.source,
+      sourceUrl: row.job.source_url ?? row.job.sourceUrl,
+      applicationUrl: row.job.application_url ?? row.job.applicationUrl,
+      postedAt: row.job.posted_at ?? row.job.postedAt,
+      explanation: row.job.explanation ?? [],
+      descriptionText: row.job.description_text ?? row.job.descriptionText,
+    },
+    applications: (row.applications ?? []).map(mapApplication),
+    latestApplication: row.latestApplication ? mapApplication(row.latestApplication) : null,
+  };
+}
+
+export async function getApplications(): Promise<ApplicationRecord[]> {
+  const rows = await fetchJson<any[]>("/applications", []);
+  return rows.map(mapApplication);
+}
+
+function mapApplication(row: any): ApplicationRecord {
+  return {
+    id: row.id,
+    jobId: row.job_id ?? row.jobId,
+    company: row.company,
+    title: row.title,
+    status: row.status,
+    currentStep: row.current_step ?? row.currentStep,
+    outcome: row.outcome ?? undefined,
+    notes: row.notes,
+  };
 }
 
 export async function getDashboardData() {
