@@ -1,0 +1,11 @@
+.DS_Store
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+backend/job_application_hub.db
+node_modules/
+.next/
+.env
+.env.local
+npm-debug.log*
