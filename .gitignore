@@ -3,6 +3,7 @@
 __pycache__/
 .pytest_cache/
 *.pyc
+.data/
 backend/job_application_hub.db
 node_modules/
 .next/
