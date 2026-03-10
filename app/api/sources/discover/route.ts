@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { canonicalKey, scoreJob, searchBrave } from "@/lib/server/domain";
-import { nextId, readStore, writeStore } from "@/lib/server/store";
+import { allocateId, createRunRecord, getProfileRecord, listJobRecords, listRunRecords, upsertJobRecord } from "@/lib/server/repository";
 
 type DiscoveryCandidate = {
   title: string;
@@ -65,9 +65,20 @@ export async function POST(request: NextRequest) {
         ];
 
   const results: DiscoveryCandidate[] = [...braveResults, ...manualResults, ...fallbackResults];
-  const data = await readStore();
+  const profile = await getProfileRecord();
+  const jobsInStore = await listJobRecords();
+  const existingRuns = await listRunRecords();
+  const data = {
+    profile,
+    jobs: jobsInStore,
+    answers: [],
+    applications: [],
+    runs: existingRuns,
+    sources: [],
+  };
   let created = 0;
-  const jobs = results.map((item) => {
+  const jobs = [];
+  for (const item of results) {
     const title = item.title;
     const description = item.description;
     const hostname = item.meta_url.hostname;
@@ -85,7 +96,7 @@ export async function POST(request: NextRequest) {
     const existing = data.jobs.find((job) => job.canonical_key === key);
     const score = scoreJob(data, { title, company, location, workplace_mode });
     const job = {
-      id: existing?.id || nextId("job", data.jobs.map((row) => row.id)),
+      id: existing?.id || (await allocateId("job")),
       canonical_key: key,
       company,
       title,
@@ -102,17 +113,20 @@ export async function POST(request: NextRequest) {
       raw_payload: item.raw_payload,
       normalized_payload: { company, title, location, workplace_mode },
     };
+    const result = await upsertJobRecord(job);
+    if (result.created) {
+      created += 1;
+    }
     if (!existing) {
       data.jobs.unshift(job);
-      created += 1;
     } else {
       Object.assign(existing, job);
     }
-    return job;
-  });
+    jobs.push(job);
+  }
 
-  const runId = nextId("run", data.runs.map((item) => item.id));
-  data.runs.unshift({
+  const runId = await allocateId("run");
+  await createRunRecord({
     id: runId,
     run_type: "discovery",
     status: brave ? "succeeded" : "partial",
@@ -120,7 +134,6 @@ export async function POST(request: NextRequest) {
     finished_at: new Date().toISOString(),
     summary: `Discovery processed ${results.length} results, created ${created} jobs, updated ${results.length - created} existing jobs.`,
   });
-  await writeStore(data);
 
   return NextResponse.json({
     query,

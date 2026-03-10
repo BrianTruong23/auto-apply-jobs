@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { readStore } from "@/lib/server/store";
+import { listRunRecords } from "@/lib/server/repository";
 
 export async function GET() {
-  const data = await readStore();
-  return NextResponse.json(data.runs);
+  return NextResponse.json(await listRunRecords());
 }

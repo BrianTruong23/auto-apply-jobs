@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { readStore, writeStore } from "@/lib/server/store";
+import { ensureSeedData, getProfileRecord, upsertProfileRecord } from "@/lib/server/repository";
 
 export async function GET() {
-  const data = await readStore();
-  return NextResponse.json(data.profile);
+  await ensureSeedData();
+  return NextResponse.json(await getProfileRecord());
 }
 
 export async function PUT(request: NextRequest) {
   const payload = (await request.json()) as Record<string, unknown>;
-  const data = await readStore();
-  data.profile = {
+  const profile = {
     id: "profile_1",
     full_name: String(payload.full_name || ""),
     email: String(payload.email || ""),
@@ -22,6 +21,6 @@ export async function PUT(request: NextRequest) {
     preferred_companies: Array.isArray(payload.preferred_companies) ? payload.preferred_companies.map(String) : [],
     skills: Array.isArray(payload.skills) ? payload.skills.map(String) : [],
   };
-  await writeStore(data);
-  return NextResponse.json(data.profile);
+  await upsertProfileRecord(profile);
+  return NextResponse.json(profile);
 }

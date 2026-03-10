@@ -103,6 +103,8 @@ Implemented endpoints:
 - The root of the repo is now the canonical Next.js app.
 - Existing `frontend/` and `backend/` folders are legacy scaffolding from the earlier split-app version.
 - The unified app now uses `NEXT_CONNECTION_STRING` for Postgres/Supabase persistence when provided.
+- Postgres writes now use table-level CRUD helpers instead of rewriting the entire store.
+- SQL migrations live in [lib/server/migrations](/Users/thangtruong/Documents/auto-apply-jobs/lib/server/migrations).
 - If `NEXT_CONNECTION_STRING` is not set, it falls back to the local JSON store in `.data/`.
 - The site now includes a job detail page and application tracking UI.
 

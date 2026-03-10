@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { classifyQuestion, generateAnswerWithOpenRouter, normalizeText } from "@/lib/server/domain";
-import { readStore, writeStore } from "@/lib/server/store";
+import { ensureSeedData, incrementAnswerUsage, listAnswerRecords } from "@/lib/server/repository";
 
 export async function POST(request: NextRequest) {
   const payload = (await request.json()) as Record<string, unknown>;
@@ -10,17 +10,16 @@ export async function POST(request: NextRequest) {
   const role = payload.role ? String(payload.role) : undefined;
   const jobDescription = payload.job_description ? String(payload.job_description) : undefined;
 
-  const data = await readStore();
+  await ensureSeedData();
+  const answers = await listAnswerRecords();
   const questionType = classifyQuestion(question);
   const normalizedQuestion = normalizeText(question);
-  const reused = data.answers.find(
+  const reused = answers.find(
     (item) => item.question_type === questionType && item.normalized_question === normalizedQuestion,
-  ) || data.answers.find((item) => item.question_type === questionType);
+  ) || answers.find((item) => item.question_type === questionType);
 
   if (reused) {
-    reused.usage_count += 1;
-    reused.last_used_at = new Date().toISOString();
-    await writeStore(data);
+    await incrementAnswerUsage(reused.id);
     return NextResponse.json({
       question_type: questionType,
       suggested_answer: reused.answer_text,
