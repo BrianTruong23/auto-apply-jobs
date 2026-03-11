@@ -53,7 +53,7 @@ export function AuthControls() {
       <div className="dock-label">Signed in</div>
       <p className="muted auth-controls-copy">{viewer.email || "Signed in"}</p>
       <button className="button-secondary" type="button" onClick={signOut}>
-        Sign out
+        Log out
       </button>
     </div>
   );
