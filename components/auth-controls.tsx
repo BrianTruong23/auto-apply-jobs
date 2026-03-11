@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
@@ -38,23 +37,20 @@ export function AuthControls() {
   }
 
   if (!viewer) {
-    return (
-      <div className="stack">
-        <div className="dock-label">Account</div>
-        <Link href="/login" className="button-secondary">
-          Log in
-        </Link>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="stack">
-      <div className="dock-label">Signed in</div>
-      <p className="muted auth-controls-copy">{viewer.email || "Signed in"}</p>
-      <button className="button-secondary" type="button" onClick={signOut}>
-        Log out
-      </button>
+    <div className="account-dock">
+      <div className="row">
+        <div>
+          <div className="dock-label">Signed in</div>
+          <p className="muted auth-controls-copy">{viewer.email || "Signed in"}</p>
+        </div>
+        <button className="button-secondary button-compact" type="button" onClick={signOut}>
+          Log out
+        </button>
+      </div>
     </div>
   );
 }

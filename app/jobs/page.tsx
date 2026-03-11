@@ -14,15 +14,15 @@ export default async function JobsPage() {
       <section className="page-header">
         <div>
           <p className="eyebrow">Jobs</p>
-          <h1>Opportunity workspace</h1>
-          <p>Filter, review, and move opportunities through the funnel with visible fit signals and immediate next actions.</p>
+          <h1>Job review</h1>
+          <p>Review new opportunities, compare fit, and decide which roles deserve actual application effort.</p>
         </div>
         <div className="page-header-actions">
           <a href="/sources" className="button-secondary">
-            Add source
+            Sources
           </a>
           <a href="/applications" className="button-primary">
-            Open pipeline
+            Pipeline
           </a>
         </div>
       </section>
@@ -35,7 +35,7 @@ export default async function JobsPage() {
           <span className="filter-chip">Needs review</span>
         </div>
         <div className="toolbar-group">
-          <span className="status-pill">Saved view: Active queue</span>
+          <span className="status-pill">Active queue</span>
           <button className="button-tertiary" type="button">Bulk actions</button>
         </div>
       </div>
@@ -62,15 +62,15 @@ export default async function JobsPage() {
             <div className="stack">
               <div className="mini-panel">
                 <strong>High-conviction shortlist</strong>
-                <p className="muted">Fit score above 85, remote-friendly, company-preferred.</p>
+                <p className="muted">Strong fit, clean source, and worth focused application work.</p>
               </div>
               <div className="mini-panel">
                 <strong>Needs human review</strong>
-                <p className="muted">Weak fit explanation or unclear location/source quality.</p>
+                <p className="muted">Unclear signals, weak explanation, or a questionable posting path.</p>
               </div>
               <div className="mini-panel">
                 <strong>Recent discoveries</strong>
-                <p className="muted">Fresh roles not yet shortlisted or archived.</p>
+                <p className="muted">New roles that still need an explicit decision.</p>
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default async function JobsPage() {
                 <div className="check-indicator">03</div>
                 <div>
                   <strong>Transition into applying</strong>
-                  <p className="muted">Hand off directly into application tracking once it is worth the effort.</p>
+                  <p className="muted">Move a role into the pipeline only when it deserves deliberate follow-through.</p>
                 </div>
               </div>
             </div>

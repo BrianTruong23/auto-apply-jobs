@@ -265,33 +265,33 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
   }
 
   return (
-    <section className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)_300px]">
-      <aside className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur">
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200/80 pb-4">
+    <section className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_280px]">
+      <aside className="rounded-[20px] border border-[var(--border)] bg-[color:var(--surface)] p-5 shadow-[var(--shadow-sm)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Answer library</p>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-slate-950">Approved responses</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Search reusable answers, review what is stale, and open the best starting point before editing.</p>
+            <p className="text-sm font-medium text-[var(--muted)]">Library</p>
+            <h2 className="mt-2 text-[1.1rem] font-semibold tracking-[-0.03em] text-[var(--text)]">Approved responses</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">Search saved answers, revisit stale ones, and start from the strongest available version.</p>
           </div>
-          <button className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-white" type="button">
+          <button className="rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-3 py-2 text-sm font-medium text-[var(--text)] transition hover:bg-[color:var(--surface-strong)]" type="button">
             New answer
           </button>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Approved</div>
-            <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-slate-950">{approvedCount}</div>
+          <div className="rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3">
+            <div className="text-xs font-medium text-[var(--muted)]">Approved</div>
+            <div className="mt-2 text-[1.45rem] font-semibold tracking-[-0.04em] text-[var(--text)]">{approvedCount}</div>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Needs refresh</div>
-            <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-slate-950">{refreshCount}</div>
+          <div className="rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3">
+            <div className="text-xs font-medium text-[var(--muted)]">Needs refresh</div>
+            <div className="mt-2 text-[1.45rem] font-semibold tracking-[-0.04em] text-[var(--text)]">{refreshCount}</div>
           </div>
         </div>
 
         <div className="mt-4">
           <input
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            className="w-full rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent-strong)] focus:bg-[color:var(--surface-strong)] focus:ring-0"
             placeholder="Search question, company, or answer text"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -304,8 +304,8 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
             return (
               <button
                 key={category}
-                className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
-                  active ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                className={`rounded-[10px] px-3 py-2 text-sm font-medium transition ${
+                  active ? "border border-[var(--border-strong)] bg-[color:var(--surface-muted)] text-[var(--text)]" : "border border-[var(--border)] bg-transparent text-[var(--muted-strong)] hover:bg-[color:var(--surface-muted)]"
                 }`}
                 type="button"
                 onClick={() => setSelectedCategory(category)}
@@ -325,24 +325,24 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
                   key={entry.id}
                   type="button"
                   onClick={() => selectEntry(entry)}
-                  className={`block w-full rounded-2xl border px-4 py-4 text-left transition ${
+                  className={`block w-full rounded-[14px] border px-4 py-4 text-left transition ${
                     active
-                      ? "border-slate-900 bg-slate-950 text-white shadow-[0_12px_28px_rgba(15,23,42,0.18)]"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                      ? "border-[var(--border-strong)] bg-[color:var(--surface-muted)] text-[var(--text)]"
+                      : "border-[var(--border)] bg-[color:var(--surface-strong)] hover:bg-[color:var(--surface-muted)]"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <span className={`h-2.5 w-2.5 rounded-full ${active ? "bg-blue-300" : getStatusTone(entry.status)}`} />
-                      <span className={`text-xs font-semibold uppercase tracking-[0.14em] ${active ? "text-slate-300" : "text-slate-500"}`}>
+                      <span className={`h-2 w-2 rounded-full ${active ? "bg-[var(--accent-strong)]" : getStatusTone(entry.status)}`} />
+                      <span className={`text-[11px] font-medium ${active ? "text-[var(--muted)]" : "text-[var(--muted)]"}`}>
                         {getStatusLabel(entry.status)}
                       </span>
                     </div>
-                    <span className={`text-xs ${active ? "text-slate-300" : "text-slate-500"}`}>{entry.usageCount} reuses</span>
+                    <span className="text-[11px] text-[var(--muted)]">{entry.usageCount} uses</span>
                   </div>
-                  <h3 className={`mt-3 text-sm font-semibold leading-6 ${active ? "text-white" : "text-slate-950"}`}>{entry.normalizedQuestion}</h3>
-                  <p className={`mt-2 text-sm leading-6 ${active ? "text-slate-300" : "text-slate-600"}`}>{shortPreview(entry.answerText)}</p>
-                  <div className={`mt-3 flex items-center gap-2 text-xs ${active ? "text-slate-300" : "text-slate-500"}`}>
+                  <h3 className="mt-3 text-sm font-semibold leading-6 text-[var(--text)]">{entry.normalizedQuestion}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{shortPreview(entry.answerText)}</p>
+                  <div className="mt-3 flex items-center gap-2 text-[11px] text-[var(--muted)]">
                     <span>{entry.companyContext || "General"}</span>
                     <span>&middot;</span>
                     <span>{entry.lastUpdated}</span>
@@ -351,10 +351,10 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
               );
             })
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-sm text-slate-600">
-              <p className="font-medium text-slate-900">No answers match this view.</p>
+            <div className="rounded-[14px] border border-dashed border-[var(--border)] bg-[color:var(--surface-muted)] px-5 py-8 text-sm text-[var(--muted)]">
+              <p className="font-medium text-[var(--text)]">No answers match this view.</p>
               <p className="mt-2 leading-6">Try a broader search or create a new approved answer for the category you need.</p>
-              <button className="mt-4 rounded-xl bg-slate-950 px-4 py-2 text-sm font-medium text-white" type="button">
+              <button className="mt-4 rounded-[12px] bg-[var(--text)] px-4 py-2 text-sm font-medium text-white" type="button">
                 Create answer
               </button>
             </div>
@@ -363,25 +363,25 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
       </aside>
 
       <div className="space-y-5">
-        <section className="rounded-3xl border border-white/70 bg-white/88 p-6 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur">
-          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200/80 pb-5">
+        <section className="rounded-[20px] border border-[var(--border)] bg-[color:var(--surface)] p-7 shadow-[var(--shadow-sm)]">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border)] pb-5">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Response editor</p>
-              <h2 className="mt-2 text-[1.75rem] font-semibold tracking-[-0.04em] text-slate-950">
+              <p className="text-sm font-medium text-[var(--muted)]">Editor</p>
+              <h2 className="mt-2 text-[1.6rem] font-semibold tracking-[-0.04em] text-[var(--text)]">
                 {selectedEntry?.normalizedQuestion || question || "Suggested answer"}
               </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted)]">
                 Start from a saved answer when possible, adjust it for the role and company, and only approve once the response reads like something you would actually send.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" type="button">
+              <button className="rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-strong)] px-3.5 py-2 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[color:var(--surface-muted)]" type="button">
                 Import answers
               </button>
-              <button className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" type="button">
+              <button className="rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-strong)] px-3.5 py-2 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[color:var(--surface-muted)]" type="button">
                 Review stale answers
               </button>
-              <button className="rounded-xl bg-slate-950 px-3.5 py-2 text-sm font-medium text-white shadow-[0_12px_24px_rgba(15,23,42,0.18)] transition hover:bg-slate-800" type="submit" form="answer-draft-form">
+              <button className="rounded-[12px] bg-[var(--text)] px-3.5 py-2 text-sm font-medium text-white transition hover:opacity-92" type="submit" form="answer-draft-form">
                 Generate draft
               </button>
             </div>
@@ -390,35 +390,35 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <form className="space-y-4" id="answer-draft-form" onSubmit={generateDraft}>
               <label className="block">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Question</span>
+                <span className="text-sm font-medium text-[var(--muted-strong)]">Question</span>
                 <textarea
-                  className="mt-2 min-h-[100px] w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 min-h-[100px] w-full rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3 text-sm leading-6 text-[var(--text)] outline-none transition focus:border-[var(--accent-strong)] focus:bg-[color:var(--surface-strong)] focus:ring-0"
                   value={question}
                   onChange={(event) => setQuestion(event.target.value)}
                 />
               </label>
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Company</span>
+                  <span className="text-sm font-medium text-[var(--muted-strong)]">Company</span>
                   <input
-                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                    className="mt-2 w-full rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent-strong)] focus:bg-[color:var(--surface-strong)] focus:ring-0"
                     value={company}
                     onChange={(event) => setCompany(event.target.value)}
                   />
                 </label>
                 <label className="block">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Role</span>
+                  <span className="text-sm font-medium text-[var(--muted-strong)]">Role</span>
                   <input
-                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                    className="mt-2 w-full rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent-strong)] focus:bg-[color:var(--surface-strong)] focus:ring-0"
                     value={role}
                     onChange={(event) => setRole(event.target.value)}
                   />
                 </label>
               </div>
               <label className="block">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Role context</span>
+                <span className="text-sm font-medium text-[var(--muted-strong)]">Role context</span>
                 <textarea
-                  className="mt-2 min-h-[120px] w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 min-h-[120px] w-full rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3 text-sm leading-6 text-[var(--text)] outline-none transition focus:border-[var(--accent-strong)] focus:bg-[color:var(--surface-strong)] focus:ring-0"
                   placeholder="Paste job description details, team context, or company notes that should shape the answer."
                   value={jobDescription}
                   onChange={(event) => setJobDescription(event.target.value)}
@@ -426,60 +426,60 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
               </label>
             </form>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+            <div className="rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-5 py-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Current source</p>
-                  <h3 className="mt-2 text-base font-semibold text-slate-950">
+                  <p className="text-sm font-medium text-[var(--muted)]">Current source</p>
+                  <h3 className="mt-2 text-base font-semibold text-[var(--text)]">
                     {draft?.reusedAnswerId ? "Based on saved answers" : selectedEntry?.sourceLabel || "Selected library answer"}
                   </h3>
                 </div>
-                <div className="text-right text-sm text-slate-500">
+                <div className="text-right text-sm text-[var(--muted)]">
                   <div>{selectedEntry?.lastUpdated || "Recently updated"}</div>
                   <div className="mt-1">{selectedEntry?.usageCount || 0} prior reuses</div>
                 </div>
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600">
+              <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
                 {selectedEntry?.changeSummary || "Use this as a controlled starting point, then review tone, specificity, and evidence before approving."}
               </p>
               {message ? (
-                <div className={`mt-4 rounded-xl px-3 py-2 text-sm ${draftState === "error" ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}>
+                <div className={`mt-4 rounded-[12px] px-3 py-2 text-sm ${draftState === "error" ? "bg-[rgba(194,107,116,0.08)] text-[var(--danger)]" : "bg-[rgba(52,199,89,0.08)] text-[var(--success)]"}`}>
                   {message}
                 </div>
               ) : null}
             </div>
           </div>
 
-          <div className="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+          <div className="mt-7 rounded-[16px] border border-[var(--border)] bg-[color:var(--surface-strong)] p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Draft</p>
-                <h3 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-slate-950">Suggested answer</h3>
+                <p className="text-sm font-medium text-[var(--muted)]">Draft</p>
+                <h3 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-[var(--text)]">Suggested answer</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                <button className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" type="button">
+                <button className="rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[color:var(--surface-muted)]" type="button">
                   Copy
                 </button>
-                <button className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" type="button">
+                <button className="rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[color:var(--surface-muted)]" type="button">
                   Compare
                 </button>
-                <button className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" type="button">
+                <button className="rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[color:var(--surface-muted)]" type="button">
                   Save
                 </button>
-                <button className="rounded-xl bg-slate-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800" type="button">
+                <button className="rounded-[12px] bg-[var(--text)] px-3 py-2 text-sm font-medium text-white transition hover:opacity-92" type="button">
                   Approve
                 </button>
               </div>
             </div>
 
             <textarea
-              className="mt-4 min-h-[360px] w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-[15px] leading-7 text-slate-900 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              className="mt-5 min-h-[380px] w-full resize-y rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-5 py-4 text-[15px] leading-7 text-[var(--text)] outline-none transition focus:border-[var(--accent-strong)] focus:bg-[color:var(--surface-strong)] focus:ring-0"
               value={draftText}
               onChange={(event) => setDraftText(event.target.value)}
               placeholder="Select a saved answer or generate a role-specific draft to start editing."
             />
 
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-[var(--muted)]">
               <span>{draft?.reusedAnswerId ? "Started from a saved answer" : "Editing workspace"}</span>
               <span>&middot;</span>
               <span>{company || "General company context"}</span>
@@ -489,34 +489,34 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/70 bg-white/88 p-6 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur">
+        <section className="rounded-[20px] border border-[var(--border)] bg-[color:var(--surface)] p-6 shadow-[var(--shadow-sm)]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Recent changes</p>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-slate-950">Version and review history</h2>
+              <p className="text-sm font-medium text-[var(--muted)]">Recent changes</p>
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text)]">Version history</h2>
             </div>
-            <button className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" type="button">
+            <button className="rounded-[12px] border border-[var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[color:var(--surface-muted)]" type="button">
               View all versions
             </button>
           </div>
 
           <div className="mt-5 grid gap-3">
-            <div className="flex items-start justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+            <div className="flex items-start justify-between rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-4">
               <div>
-                <div className="text-sm font-medium text-slate-950">Edited company-specific motivation answer</div>
-                <div className="mt-1 text-sm leading-6 text-slate-600">Refined the first paragraph to emphasize internal systems experience and removed vague mission language.</div>
+                <div className="text-sm font-medium text-[var(--text)]">Edited company-specific motivation answer</div>
+                <div className="mt-1 text-sm leading-6 text-[var(--muted)]">Refined the first paragraph to emphasize internal systems experience and removed vague mission language.</div>
               </div>
-              <div className="text-right text-sm text-slate-500">
+              <div className="text-right text-sm text-[var(--muted)]">
                 <div>Mar 8, 2026</div>
                 <div className="mt-1">Approved</div>
               </div>
             </div>
-            <div className="flex items-start justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+            <div className="flex items-start justify-between rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-4">
               <div>
-                <div className="text-sm font-medium text-slate-950">Reused challenge answer for two screening forms</div>
-                <div className="mt-1 text-sm leading-6 text-slate-600">Applied the workflow-platform example with minor edits for tone and metrics.</div>
+                <div className="text-sm font-medium text-[var(--text)]">Reused challenge answer for two screening forms</div>
+                <div className="mt-1 text-sm leading-6 text-[var(--muted)]">Applied the workflow-platform example with minor edits for tone and metrics.</div>
               </div>
-              <div className="text-right text-sm text-slate-500">
+              <div className="text-right text-sm text-[var(--muted)]">
                 <div>Mar 5, 2026</div>
                 <div className="mt-1">2 reuses</div>
               </div>
@@ -526,38 +526,38 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
       </div>
 
       <aside className="space-y-5">
-        <section className="rounded-3xl border border-white/70 bg-white/88 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur">
+        <section className="rounded-[20px] border border-[var(--border)] bg-[color:var(--surface)] p-5 shadow-[var(--shadow-sm)]">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Review context</p>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-slate-950">Current answer status</h2>
+            <p className="text-sm font-medium text-[var(--muted)]">Review context</p>
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text)]">Current answer status</h2>
           </div>
           <div className="mt-4 space-y-3">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Status</div>
-              <div className="mt-2 flex items-center gap-2 text-sm font-medium text-slate-900">
+            <div className="rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-4">
+              <div className="text-sm font-medium text-[var(--muted)]">Status</div>
+              <div className="mt-2 flex items-center gap-2 text-sm font-medium text-[var(--text)]">
                 <span className={`h-2.5 w-2.5 rounded-full ${getStatusTone(selectedEntry?.status ?? "draft")}`} />
                 {getStatusLabel(selectedEntry?.status ?? "draft")}
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Provenance</div>
-              <div className="mt-2 text-sm leading-6 text-slate-700">{draft?.reusedAnswerId ? "Prepared from a previously saved answer." : selectedEntry?.sourceLabel || "No saved source selected."}</div>
+            <div className="rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-4">
+              <div className="text-sm font-medium text-[var(--muted)]">Provenance</div>
+              <div className="mt-2 text-sm leading-6 text-[var(--muted-strong)]">{draft?.reusedAnswerId ? "Prepared from a previously saved answer." : selectedEntry?.sourceLabel || "No saved source selected."}</div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Last updated</div>
-              <div className="mt-2 text-sm font-medium text-slate-900">{selectedEntry?.lastUpdated || "Not yet updated"}</div>
-              <div className="mt-1 text-sm text-slate-600">{selectedEntry?.changeSummary || "No change summary available."}</div>
+            <div className="rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-4">
+              <div className="text-sm font-medium text-[var(--muted)]">Last updated</div>
+              <div className="mt-2 text-sm font-medium text-[var(--text)]">{selectedEntry?.lastUpdated || "Not yet updated"}</div>
+              <div className="mt-1 text-sm text-[var(--muted)]">{selectedEntry?.changeSummary || "No change summary available."}</div>
             </div>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/70 bg-white/88 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur">
+        <section className="rounded-[20px] border border-[var(--border)] bg-[color:var(--surface)] p-5 shadow-[var(--shadow-sm)]">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Related answers</p>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-slate-950">Good starting points</h2>
+              <p className="text-sm font-medium text-[var(--muted)]">Related answers</p>
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text)]">Good starting points</h2>
             </div>
-            <div className="text-sm text-slate-500">{relatedEntries.length} matches</div>
+            <div className="text-sm text-[var(--muted)]">{relatedEntries.length} matches</div>
           </div>
           <div className="mt-4 space-y-3">
             {relatedEntries.length ? (
@@ -566,54 +566,54 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
                   key={entry.id}
                   type="button"
                   onClick={() => selectEntry(entry)}
-                  className="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-left transition hover:border-slate-300 hover:bg-white"
+                  className="block w-full rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-4 text-left transition hover:bg-[color:var(--surface-strong)]"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm font-medium text-slate-950">{entry.normalizedQuestion}</div>
-                    <span className="text-xs text-slate-500">{entry.usageCount} reuses</span>
+                    <div className="text-sm font-medium text-[var(--text)]">{entry.normalizedQuestion}</div>
+                    <span className="text-xs text-[var(--muted)]">{entry.usageCount} uses</span>
                   </div>
-                  <div className="mt-2 text-sm leading-6 text-slate-600">{shortPreview(entry.answerText)}</div>
+                  <div className="mt-2 text-sm leading-6 text-[var(--muted)]">{shortPreview(entry.answerText)}</div>
                 </button>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+              <div className="rounded-[14px] border border-dashed border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-6 text-sm text-[var(--muted)]">
                 No related saved answers yet. Start by approving one strong response in this category.
               </div>
             )}
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/70 bg-white/88 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur">
+        <section className="rounded-[20px] border border-[var(--border)] bg-[color:var(--surface)] p-5 shadow-[var(--shadow-sm)]">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Queue</p>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-slate-950">Operational details</h2>
+            <p className="text-sm font-medium text-[var(--muted)]">Queue</p>
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text)]">Operational details</h2>
           </div>
           <div className="mt-4 space-y-3 text-sm">
-            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <span className="text-slate-600">Approved answers</span>
-              <strong className="text-slate-950">{approvedCount}</strong>
+            <div className="flex items-center justify-between rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3">
+              <span className="text-[var(--muted)]">Approved answers</span>
+              <strong className="text-[var(--text)]">{approvedCount}</strong>
             </div>
-            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <span className="text-slate-600">Awaiting review</span>
-              <strong className="text-slate-950">{refreshCount + draftCount}</strong>
+            <div className="flex items-center justify-between rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-3">
+              <span className="text-[var(--muted)]">Awaiting review</span>
+              <strong className="text-[var(--text)]">{refreshCount + draftCount}</strong>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Recently reused</div>
+            <div className="rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-4">
+              <div className="text-sm font-medium text-[var(--muted)]">Recently reused</div>
               <div className="mt-3 space-y-3">
                 {recentlyReused.map((entry) => (
                   <div key={entry.id} className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-sm font-medium text-slate-950">{entry.normalizedQuestion}</div>
-                      <div className="mt-1 text-sm text-slate-600">{entry.companyContext || "General use"}</div>
+                      <div className="text-sm font-medium text-[var(--text)]">{entry.normalizedQuestion}</div>
+                      <div className="mt-1 text-sm text-[var(--muted)]">{entry.companyContext || "General use"}</div>
                     </div>
-                    <div className="text-xs text-slate-500">{entry.usageCount} uses</div>
+                    <div className="text-xs text-[var(--muted)]">{entry.usageCount} uses</div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Review checklist</div>
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+            <div className="rounded-[14px] border border-[var(--border)] bg-[color:var(--surface-muted)] px-4 py-4">
+              <div className="text-sm font-medium text-[var(--muted)]">Review checklist</div>
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--muted)]">
                 <li>Make sure the answer uses concrete evidence instead of generic enthusiasm.</li>
                 <li>Check whether the company and role context are actually reflected in the final copy.</li>
                 <li>Approve only responses that you would be comfortable reusing without major edits.</li>

@@ -50,15 +50,15 @@ export default async function HomePage() {
       <section className="page-header">
         <div>
           <p className="eyebrow">Overview</p>
-          <h1>Application operations command center</h1>
-          <p>Track sourcing momentum, decide what needs review next, and keep every automation legible before it turns into an application step.</p>
+          <h1>Overview</h1>
+          <p>A quiet overview of your search pipeline, current priorities, and the systems supporting each application decision.</p>
         </div>
         <div className="page-header-actions">
           <a href="/sources" className="button-secondary">
-            Manage sources
+            Sources
           </a>
           <a href="/answers" className="button-primary">
-            Draft with context
+            New draft
           </a>
         </div>
       </section>
@@ -66,9 +66,9 @@ export default async function HomePage() {
       <section className="hero">
         <div className="stack-lg">
           <div>
-            <p className="eyebrow">System posture</p>
-            <h2 className="hero-title">A serious workflow hub for discovering, vetting, and moving through applications deliberately.</h2>
-            <p className="lede">The product is optimized for power users: clear fit signals, reviewable automation, reusable answer memory, and fast transitions from discovery to application execution.</p>
+            <p className="eyebrow">Today</p>
+            <h2 className="hero-title">A focused workspace for finding strong roles and moving them forward deliberately.</h2>
+            <p className="lede">Keep the queue clean, review recommendations with context, and move from discovery to application only when the opportunity is worth real attention.</p>
           </div>
           <div className="hero-metrics">
             <StatCard label="Tracked jobs" value={String(data.jobs.length)} detail="Scored and deduplicated across all sources" />
@@ -88,7 +88,7 @@ export default async function HomePage() {
           <div className="checklist">
             {attentionItems.map((item, index) => (
               <div className="check-item" key={item.title}>
-                <div className="check-indicator">0{index + 1}</div>
+                <div className="check-indicator">{index + 1}</div>
                 <div>
                   <strong>{item.title}</strong>
                   <p className="muted">{item.detail}</p>

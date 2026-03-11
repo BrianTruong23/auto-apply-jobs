@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
 
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -27,7 +29,7 @@ export function LoginForm() {
         ? supabase.auth.signInWithPassword({ email, password })
         : supabase.auth.signUp({ email, password });
 
-    const { error } = await action;
+    const { data, error } = await action;
     if (error) {
       setState("error");
       setMessage(error.message);
@@ -38,7 +40,17 @@ export function LoginForm() {
     setMessage(mode === "login" ? "Logged in. Redirecting..." : "Account created. Check your email if confirmation is required.");
 
     if (mode === "login") {
-      window.location.href = "/";
+      const accessToken = data.session?.access_token;
+      if (accessToken) {
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token: accessToken }),
+        });
+      }
+
+      router.replace("/");
+      router.refresh();
     }
   }
 
@@ -57,7 +69,7 @@ export function LoginForm() {
           {state === "loading" ? "Working..." : mode === "login" ? "Log in" : "Create account"}
         </button>
         <button
-          className="button-secondary"
+          className="button-tertiary"
           type="button"
           onClick={() => setMode((current) => (current === "login" ? "signup" : "login"))}
         >

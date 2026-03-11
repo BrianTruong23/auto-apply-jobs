@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { AuthControls } from "./auth-controls";
+import { ThemeToggle } from "./theme-toggle";
 
 const navSections = [
   {
@@ -30,6 +31,11 @@ const navSections = [
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isStandaloneRoute = pathname === "/login";
+
+  if (isStandaloneRoute) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="shell">
@@ -37,7 +43,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <div className="brand-block">
           <div className="brand-mark">JH</div>
           <div className="brand">Job Application Hub</div>
-          <div className="brand-subtitle">A deliberate operating system for sourcing, drafting, tracking, and reviewing every application step.</div>
+          <div className="brand-subtitle">A focused workspace for discovering roles, managing applications, and reviewing each step with care.</div>
         </div>
 
         {navSections.map((section) => (
@@ -58,37 +64,22 @@ export function Shell({ children }: { children: React.ReactNode }) {
         ))}
 
         <div className="sidebar-footer">
-          <div className="status-dock">
-            <div className="dock-label">Operating posture</div>
-            <div className="dock-row">
-              <span>Human review</span>
-              <span>Required</span>
-            </div>
-            <div className="dock-row">
-              <span>Automation</span>
-              <span>Assisted</span>
-            </div>
-            <div className="dock-row">
-              <span>Visibility</span>
-              <span>Full logs</span>
-            </div>
-          </div>
           <AuthControls />
         </div>
       </aside>
       <div className="content">
         <div className="topbar">
           <div className="topbar-search">
-            <span className="muted">Search</span>
-            <input placeholder="Search jobs, sources, answers, or recent runs" />
+            <input placeholder="Search jobs, answers, sources, or recent runs" />
           </div>
           <div className="topbar-actions">
+            <ThemeToggle />
             <div className="status-pill">System healthy</div>
             <Link href="/sources" className="button-secondary">
-              New source
+              Sources
             </Link>
             <Link href="/answers" className="button-primary">
-              Draft answer
+              New draft
             </Link>
           </div>
         </div>

@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { AuthSync } from "../components/auth-sync";
 import { Shell } from "../components/shell";
+import { ThemeProvider } from "../components/theme-provider";
 
 export const metadata: Metadata = {
   title: "Job Application Hub",
@@ -10,10 +11,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <body>
-        <AuthSync />
-        <Shell>{children}</Shell>
+        <ThemeProvider>
+          <AuthSync />
+          <Shell>{children}</Shell>
+        </ThemeProvider>
       </body>
     </html>
   );
