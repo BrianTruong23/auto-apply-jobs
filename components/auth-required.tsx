@@ -2,17 +2,24 @@ import Link from "next/link";
 
 export function AuthRequired({ title = "Authentication required" }: { title?: string }) {
   return (
-    <main className="page">
-      <section className="panel">
-        <div className="panel-header">
+    <main className="login-page">
+      <section className="auth-card auth-guard">
+        <div className="auth-card-header">
+          <p className="eyebrow">Private workspace</p>
           <h1>{title}</h1>
-          <p>Log in with Supabase Auth to access your own profile, jobs, applications, and answer bank.</p>
+          <p>Supabase Auth gates profile data, jobs, applications, answer memory, and operational logs per user.</p>
         </div>
-        <article className="answer-card">
-          <Link href="/login" className="button-primary">
-            Go to login
-          </Link>
-        </article>
+        <div className="login-panel">
+          <div className="stack">
+            <div>
+              <strong>Access required</strong>
+              <p className="muted">Log in to continue into your personal application operations dashboard.</p>
+            </div>
+            <Link href="/login" className="button-primary">
+              Go to login
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   );

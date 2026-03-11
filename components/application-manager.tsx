@@ -95,9 +95,15 @@ export function ApplicationManager({
   }
 
   return (
-    <div className="stack">
-      <article className="answer-card">
-        <h2>Track application</h2>
+    <div className="detail-layout">
+      <article className="surface">
+        <div className="panel-header">
+          <div>
+            <h2>Track application</h2>
+            <p>Capture the real next step, blockers, and notes before the opportunity slips into ambiguity.</p>
+          </div>
+          <span className={`badge badge-${state === "error" ? "error" : "ready"}`}>{state === "saving" ? "saving" : "ready"}</span>
+        </div>
         <form className="form-grid" onSubmit={createApplication}>
           <label className="field">
             <span>Status</span>
@@ -111,11 +117,11 @@ export function ApplicationManager({
           </label>
           <label className="field">
             <span>Current step</span>
-            <input value={currentStep} onChange={(event) => setCurrentStep(event.target.value)} />
+            <input value={currentStep} onChange={(event) => setCurrentStep(event.target.value)} placeholder="Tailor resume, complete screening form, schedule recruiter call" />
           </label>
           <label className="field field-full">
             <span>Notes</span>
-            <textarea rows={4} value={notes} onChange={(event) => setNotes(event.target.value)} />
+            <textarea rows={5} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Capture blockers, custom answers, deadlines, and follow-up context." />
           </label>
           <div className="form-actions field-full">
             <button className="button-primary" type="submit" disabled={state === "saving"}>
@@ -127,18 +133,42 @@ export function ApplicationManager({
       </article>
 
       <div className="stack">
-        {applications.map((application) => (
-          <article className="answer-card" key={application.id}>
-            <div className="row">
-              <strong>{application.status}</strong>
-              <button className="button-secondary" type="button" onClick={() => updateApplication(application.id)}>
-                Save edits
-              </button>
+        <article className="surface">
+          <div className="panel-header">
+            <div>
+              <h2>Tracked records</h2>
+              <p>Update status and notes inline while keeping a clear audit of progress.</p>
             </div>
-            <p className="muted">{application.currentStep}</p>
-            <p>{application.notes}</p>
-          </article>
-        ))}
+          </div>
+          {applications.length ? (
+            <div className="stack">
+              {applications.map((application) => (
+                <article className="answer-card" key={application.id}>
+                  <div className="row">
+                    <div>
+                      <strong>{application.title}</strong>
+                      <p className="muted">{application.company}</p>
+                    </div>
+                    <span className={`badge badge-${application.status}`}>{application.status}</span>
+                  </div>
+                  <p className="muted">{application.currentStep || "No step recorded"}</p>
+                  <p>{application.notes || "No notes yet."}</p>
+                  <div className="row-wrap">
+                    {application.outcome ? <span className="tag">{application.outcome}</span> : null}
+                    <button className="button-secondary" type="button" onClick={() => updateApplication(application.id)}>
+                      Save edits
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <strong>No applications tracked yet</strong>
+              <p className="muted">Create the first application record from this job once it is worth active effort.</p>
+            </div>
+          )}
+        </article>
       </div>
     </div>
   );

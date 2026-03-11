@@ -94,53 +94,93 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
   }
 
   return (
-    <form className="form-grid" onSubmit={onSubmit}>
-      <label className="field">
-        <span>Full name</span>
-        <input value={fullName} onChange={(event) => setFullName(event.target.value)} />
-      </label>
-      <label className="field">
-        <span>Email</span>
-        <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-      </label>
-      <label className="field">
-        <span>Location</span>
-        <input value={location} onChange={(event) => setLocation(event.target.value)} />
-      </label>
-      <label className="field field-full">
-        <span>Summary</span>
-        <textarea rows={4} value={summary} onChange={(event) => setSummary(event.target.value)} />
-      </label>
-      <label className="field field-full">
-        <span>Skills (comma-separated)</span>
-        <input value={skills} onChange={(event) => setSkills(event.target.value)} />
-      </label>
-      <label className="field field-full">
-        <span>Preferred roles (comma-separated)</span>
-        <input value={preferredRoles} onChange={(event) => setPreferredRoles(event.target.value)} />
-      </label>
-      <label className="field field-full">
-        <span>Preferred locations (comma-separated)</span>
-        <input value={preferredLocations} onChange={(event) => setPreferredLocations(event.target.value)} />
-      </label>
-      <label className="field field-full">
-        <span>Preferred companies (comma-separated)</span>
-        <input value={preferredCompanies} onChange={(event) => setPreferredCompanies(event.target.value)} />
-      </label>
-      <label className="field field-full">
-        <span>Resume text</span>
-        <textarea rows={6} value={resumeText} onChange={(event) => setResumeText(event.target.value)} />
-      </label>
-      <label className="field field-full">
-        <span>Import resume text file</span>
-        <input type="file" accept=".txt,.md,.json,.csv,.pdf,.doc,.docx" onChange={onResumeFileSelected} />
-      </label>
-      <div className="form-actions field-full">
-        <button className="button-primary" type="submit" disabled={state === "saving"}>
-          {state === "saving" ? "Saving..." : "Save profile"}
-        </button>
-        {message ? <span className={`inline-message inline-${state}`}>{message}</span> : null}
+    <div className="editor-shell">
+      <div className="editor-header">
+        <div>
+          <p className="eyebrow">Profile editor</p>
+          <h3>Structured context for scoring, drafting, and autofill</h3>
+        </div>
+        <div className="status-cluster">
+          <span className="status-pill">Resume grounding</span>
+          <span className={`badge badge-${state === "error" ? "error" : "ready"}`}>{state === "saving" ? "saving" : "editable"}</span>
+        </div>
       </div>
-    </form>
+
+      <form className="form-grid" onSubmit={onSubmit}>
+        <div className="field-group field-full">
+          <div className="field-group-header">
+            <strong>Identity</strong>
+            <p className="muted">Used in autofill proposals and profile-aware personalization.</p>
+          </div>
+          <div className="field-grid">
+            <label className="field">
+              <span>Full name</span>
+              <input value={fullName} onChange={(event) => setFullName(event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Email</span>
+              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Location</span>
+              <input value={location} onChange={(event) => setLocation(event.target.value)} />
+            </label>
+            <label className="field field-span-2">
+              <span>Summary</span>
+              <textarea rows={4} value={summary} onChange={(event) => setSummary(event.target.value)} />
+            </label>
+          </div>
+        </div>
+
+        <div className="field-group field-full">
+          <div className="field-group-header">
+            <strong>Targeting inputs</strong>
+            <p className="muted">Keep your search lanes and company priorities explicit.</p>
+          </div>
+          <div className="field-grid">
+            <label className="field field-span-2">
+              <span>Skills</span>
+              <input value={skills} onChange={(event) => setSkills(event.target.value)} placeholder="TypeScript, React, Playwright, FastAPI" />
+            </label>
+            <label className="field field-span-2">
+              <span>Preferred roles</span>
+              <input value={preferredRoles} onChange={(event) => setPreferredRoles(event.target.value)} placeholder="Product Engineer, Platform Engineer" />
+            </label>
+            <label className="field">
+              <span>Preferred locations</span>
+              <input value={preferredLocations} onChange={(event) => setPreferredLocations(event.target.value)} placeholder="Remote, New York" />
+            </label>
+            <label className="field">
+              <span>Preferred companies</span>
+              <input value={preferredCompanies} onChange={(event) => setPreferredCompanies(event.target.value)} placeholder="OpenAI, Stripe, Ramp" />
+            </label>
+          </div>
+        </div>
+
+        <div className="field-group field-full">
+          <div className="field-group-header">
+            <strong>Resume source</strong>
+            <p className="muted">Text-based files can be imported directly. PDF and DOCX still require pasted text for now.</p>
+          </div>
+          <div className="field-grid">
+            <label className="field field-span-2">
+              <span>Resume text</span>
+              <textarea rows={8} value={resumeText} onChange={(event) => setResumeText(event.target.value)} />
+            </label>
+            <label className="field field-span-2">
+              <span>Import resume text file</span>
+              <input type="file" accept=".txt,.md,.json,.csv,.pdf,.doc,.docx" onChange={onResumeFileSelected} />
+            </label>
+          </div>
+        </div>
+
+        <div className="form-actions field-full">
+          <button className="button-primary" type="submit" disabled={state === "saving"}>
+            {state === "saving" ? "Saving..." : "Save profile"}
+          </button>
+          {message ? <span className={`inline-message inline-${state}`}>{message}</span> : null}
+        </div>
+      </form>
+    </div>
   );
 }

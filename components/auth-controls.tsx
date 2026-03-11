@@ -40,6 +40,7 @@ export function AuthControls() {
   if (!viewer) {
     return (
       <div className="stack">
+        <div className="dock-label">Account</div>
         <Link href="/login" className="button-secondary">
           Log in
         </Link>
@@ -49,7 +50,8 @@ export function AuthControls() {
 
   return (
     <div className="stack">
-      <p className="muted">{viewer.email || "Signed in"}</p>
+      <div className="dock-label">Signed in</div>
+      <p className="muted auth-controls-copy">{viewer.email || "Signed in"}</p>
       <button className="button-secondary" type="button" onClick={signOut}>
         Sign out
       </button>

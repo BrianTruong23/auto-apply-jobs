@@ -121,47 +121,54 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
   }
 
   return (
-    <div className="stack">
-      <div className="two-col">
-        <article className="answer-card">
-          <h2>Create source</h2>
+    <div className="sources-layout">
+      <div className="stack-lg">
+        <article className="surface">
+          <div className="panel-header">
+            <div>
+              <h2>Source registry</h2>
+              <p>Store discovery packs explicitly so searches stay reviewable, repeatable, and easy to tune.</p>
+            </div>
+            <span className="status-pill">{sources.filter((source) => source.enabled).length} active</span>
+          </div>
+
           <form className="form-grid" onSubmit={createSource}>
             <label className="field">
               <span>Name</span>
-              <input value={name} onChange={(event) => setName(event.target.value)} />
+              <input value={name} onChange={(event) => setName(event.target.value)} placeholder="AI product roles" />
             </label>
             <label className="field">
               <span>Type</span>
               <select value={type} onChange={(event) => setType(event.target.value)}>
-                <option value="search_keyword">search_keyword</option>
-                <option value="company_page">company_page</option>
-                <option value="job_board">job_board</option>
-                <option value="manual_url">manual_url</option>
+                <option value="search_keyword">search keyword</option>
+                <option value="company_page">company page</option>
+                <option value="job_board">job board</option>
+                <option value="manual_url">manual URL</option>
               </select>
             </label>
             <label className="field field-full">
               <span>Base URL</span>
-              <input value={baseUrl} onChange={(event) => setBaseUrl(event.target.value)} />
+              <input value={baseUrl} onChange={(event) => setBaseUrl(event.target.value)} placeholder="https://careers.example.com" />
             </label>
-            <label className="field field-full">
+            <label className="field field-span-2">
               <span>Keywords</span>
-              <input value={keywords} onChange={(event) => setKeywords(event.target.value)} />
+              <input value={keywords} onChange={(event) => setKeywords(event.target.value)} placeholder="software engineer ai, product engineer" />
             </label>
-            <label className="field field-full">
+            <label className="field">
               <span>Companies</span>
-              <input value={companies} onChange={(event) => setCompanies(event.target.value)} />
+              <input value={companies} onChange={(event) => setCompanies(event.target.value)} placeholder="OpenAI, Ramp, Stripe" />
             </label>
-            <label className="field field-full">
+            <label className="field">
               <span>Roles</span>
-              <input value={roles} onChange={(event) => setRoles(event.target.value)} />
+              <input value={roles} onChange={(event) => setRoles(event.target.value)} placeholder="Software Engineer, Product Engineer" />
             </label>
             <label className="field">
               <span>Locations</span>
-              <input value={locations} onChange={(event) => setLocations(event.target.value)} />
+              <input value={locations} onChange={(event) => setLocations(event.target.value)} placeholder="Remote, New York" />
             </label>
             <label className="field">
-              <span>Modes</span>
-              <input value={workplaceModes} onChange={(event) => setWorkplaceModes(event.target.value)} />
+              <span>Workplace modes</span>
+              <input value={workplaceModes} onChange={(event) => setWorkplaceModes(event.target.value)} placeholder="remote, hybrid" />
             </label>
             <div className="form-actions field-full">
               <button className="button-primary" type="submit">Add source</button>
@@ -174,8 +181,28 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
           </form>
         </article>
 
-        <article className="answer-card">
-          <h2>Run discovery</h2>
+        <article className="surface">
+          <div className="panel-header">
+            <div>
+              <h2>Configured sources</h2>
+              <p>Inspect the channels feeding discovery and verify they still match your search posture.</p>
+            </div>
+          </div>
+          <SourceList sources={sources} />
+        </article>
+      </div>
+
+      <div className="stack">
+        <article className="surface">
+          <div className="panel-header">
+            <div>
+              <h2>Run discovery</h2>
+              <p>Trigger a bounded crawl with explicit keywords, company targets, and manual URLs.</p>
+            </div>
+            <span className={`badge badge-${discoveryState === "error" ? "failed" : discoveryState === "done" ? "succeeded" : "ready"}`}>
+              {discoveryState === "running" ? "running" : discoveryState === "done" ? "complete" : "ready"}
+            </span>
+          </div>
           <form className="form-grid" onSubmit={runDiscovery}>
             <label className="field field-full">
               <span>Keywords</span>
@@ -183,7 +210,7 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
             </label>
             <label className="field field-full">
               <span>Companies</span>
-              <input value={discoveryCompanies} onChange={(event) => setDiscoveryCompanies(event.target.value)} />
+              <input value={discoveryCompanies} onChange={(event) => setDiscoveryCompanies(event.target.value)} placeholder="Optional company shortlist" />
             </label>
             <label className="field">
               <span>Locations</span>
@@ -195,7 +222,7 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
             </label>
             <label className="field field-full">
               <span>Manual URLs</span>
-              <textarea rows={3} value={manualUrls} onChange={(event) => setManualUrls(event.target.value)} />
+              <textarea rows={4} value={manualUrls} onChange={(event) => setManualUrls(event.target.value)} placeholder="Paste one posting or career URL per line." />
             </label>
             <div className="form-actions field-full">
               <button className="button-primary" type="submit" disabled={discoveryState === "running"}>
@@ -206,28 +233,59 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
               ) : null}
             </div>
           </form>
+        </article>
+
+        <article className="surface">
+          <div className="panel-header">
+            <div>
+              <h2>Latest run</h2>
+              <p>Inspect returned postings before moving them into the pipeline.</p>
+            </div>
+          </div>
           {discoveryResult ? (
-            <div className="result-panel">
-              <p><strong>Query:</strong> {discoveryResult.query}</p>
-              <p><strong>Processed:</strong> {discoveryResult.total_processed}</p>
-              <p><strong>Created:</strong> {discoveryResult.created}</p>
-              <p><strong>Fallback:</strong> {discoveryResult.used_fallback ? "yes" : "no"}</p>
+            <div className="stack">
+              <div className="grid-3">
+                <div className="mini-panel">
+                  <span className="stat-label">Processed</span>
+                  <strong>{discoveryResult.total_processed}</strong>
+                  <p className="muted">Total candidates examined</p>
+                </div>
+                <div className="mini-panel">
+                  <span className="stat-label">Created</span>
+                  <strong>{discoveryResult.created}</strong>
+                  <p className="muted">Normalized jobs saved</p>
+                </div>
+                <div className="mini-panel">
+                  <span className="stat-label">Mode</span>
+                  <strong>{discoveryResult.used_fallback ? "Fallback" : "Brave"}</strong>
+                  <p className="muted">{discoveryResult.query}</p>
+                </div>
+              </div>
               <div className="stack">
                 {discoveryResult.jobs.slice(0, 5).map((job) => (
-                  <p key={job.id}>
-                    <strong>{job.company}</strong> · {job.title} ·{" "}
-                    <a href={job.applicationUrl} target="_blank" rel="noreferrer">
-                      open posting
-                    </a>
-                  </p>
+                  <div className="list-row" key={job.id}>
+                    <div>
+                      <strong>{job.company}</strong>
+                      <p className="muted">{job.title}</p>
+                    </div>
+                    <div className="row-wrap">
+                      <span className={`badge badge-${job.status}`}>{job.status}</span>
+                      <a className="button-tertiary" href={job.applicationUrl} target="_blank" rel="noreferrer">
+                        Open posting
+                      </a>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-          ) : null}
+          ) : (
+            <div className="empty-state">
+              <strong>No discovery run yet</strong>
+              <p className="muted">Run a query to inspect returned postings, source quality, and fallback behavior.</p>
+            </div>
+          )}
         </article>
       </div>
-
-      <SourceList sources={sources} />
     </div>
   );
 }
