@@ -15,6 +15,7 @@ export interface Profile {
   email: string;
   location: string;
   summary: string;
+  resumeText: string;
   preferredRoles: string[];
   preferredLocations: string[];
   preferredCompanies: string[];
@@ -56,6 +57,8 @@ export interface AnswerBankEntry {
   id: string;
   questionType: string;
   normalizedQuestion: string;
+  companyContext?: string;
+  roleContext?: string;
   answerText: string;
   usageCount: number;
   lastUsedAt?: string;

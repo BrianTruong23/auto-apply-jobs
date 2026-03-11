@@ -33,6 +33,10 @@ export default async function ProfilePage() {
             <p>{profile.skills.join(", ")}</p>
           </article>
           <article className="answer-card">
+            <strong>Resume text</strong>
+            <p>{profile.resumeText ? `${profile.resumeText.length} characters loaded` : "No resume text loaded yet"}</p>
+          </article>
+          <article className="answer-card">
             <h2>Edit profile</h2>
             <ProfileEditor profile={profile} />
           </article>

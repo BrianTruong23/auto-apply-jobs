@@ -59,6 +59,8 @@ test("maps database rows into app data shape", () => {
         id: "ans_1",
         question_type: "motivation",
         normalized_question: "why do you want to work here",
+        company_context: "OpenAI",
+        role_context: "Engineer",
         answer_text: "Because impact.",
         usage_count: 2,
         last_used_at: "2026-03-10T00:00:00Z",
@@ -92,6 +94,7 @@ test("maps database rows into app data shape", () => {
   assert.deepEqual(mapped.sources[0].keywords, ["ai jobs"]);
   assert.equal(mapped.jobs[0].fit_score, 91);
   assert.equal(mapped.answers[0].question_type, "motivation");
+  assert.equal(mapped.answers[0].company_context, "OpenAI");
   assert.equal(mapped.applications[0].current_step, "Resume review");
   assert.equal(mapped.runs[0].run_type, "discovery");
 });

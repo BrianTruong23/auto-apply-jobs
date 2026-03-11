@@ -1,13 +1,29 @@
 import { mockAnswers, mockJobs, mockRuns, mockSources } from "./mock-data";
 import type { AnswerBankEntry, ApplicationRecord, JobDetailResult, JobRecord, JobSource, Profile, RunLog } from "../types";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api` : "http://localhost:3000/api");
+function getServerApiBaseUrl() {
+  const configured = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (configured) {
+    if (process.env.VERCEL_URL && configured.includes("localhost")) {
+      return `https://${process.env.VERCEL_URL}/api`;
+    }
+    return configured;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}/api`;
+  }
+
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return `${process.env.NEXT_PUBLIC_APP_URL}/api`;
+  }
+
+  return "http://localhost:3000/api";
+}
 
 async function fetchJson<T>(path: string, fallback: T): Promise<T> {
   try {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const response = await fetch(`${getServerApiBaseUrl()}${path}`, {
       next: { revalidate: 0 },
     });
 
@@ -48,6 +64,7 @@ export async function getProfile(): Promise<Profile> {
     email: "alex@example.com",
     location: "New York, NY",
     summary: "Product-minded software engineer focused on AI-enabled workflow tools.",
+    resumeText: "",
     preferredRoles: ["Software Engineer", "Full Stack Engineer", "AI Product Engineer"],
     preferredLocations: ["New York, NY", "Remote"],
     preferredCompanies: ["OpenAI", "Stripe", "Notion"],
@@ -59,6 +76,7 @@ export async function getProfile(): Promise<Profile> {
     email: row.email,
     location: row.location,
     summary: row.summary,
+    resumeText: row.resume_text ?? row.resumeText ?? "",
     preferredRoles: row.preferred_roles ?? row.preferredRoles ?? [],
     preferredLocations: row.preferred_locations ?? row.preferredLocations ?? [],
     preferredCompanies: row.preferred_companies ?? row.preferredCompanies ?? [],
@@ -89,6 +107,8 @@ export async function getAnswers(): Promise<AnswerBankEntry[]> {
     id: row.id,
     questionType: row.question_type ?? row.questionType,
     normalizedQuestion: row.normalized_question ?? row.normalizedQuestion,
+    companyContext: row.company_context ?? row.companyContext ?? undefined,
+    roleContext: row.role_context ?? row.roleContext ?? undefined,
     answerText: row.answer_text ?? row.answerText,
     usageCount: row.usage_count ?? row.usageCount,
     lastUsedAt: row.last_used_at ?? row.lastUsedAt,
@@ -156,4 +176,20 @@ function mapApplication(row: any): ApplicationRecord {
 export async function getDashboardData() {
   const [jobs, sources, answers, runs] = await Promise.all([getJobs(), getSources(), getAnswers(), getRuns()]);
   return { jobs, sources, answers, runs };
+}
+
+export async function getHealth(): Promise<{
+  status: string;
+  persistence_mode: string;
+  supabase_configured: boolean;
+  brave_configured: boolean;
+  openrouter_configured: boolean;
+}> {
+  return fetchJson("/health", {
+    status: "ok",
+    persistence_mode: "file",
+    supabase_configured: false,
+    brave_configured: false,
+    openrouter_configured: false,
+  });
 }

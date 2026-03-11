@@ -2,37 +2,35 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ApplicationManager } from "@/components/application-manager";
-import { getJobDetail } from "@/lib/server/application-logic";
-import { readStore } from "@/lib/server/store";
+import { getJobRecord, listApplicationRecords } from "@/lib/server/repository";
 import type { ApplicationRecord, JobRecord } from "@/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const detail = getJobDetail(await readStore(), id);
-
-  if (!detail) {
+  const [jobRow, applicationRows] = await Promise.all([getJobRecord(id), listApplicationRecords()]);
+  if (!jobRow) {
     notFound();
   }
 
   const job: JobRecord = {
-    id: detail.job.id,
-    canonicalKey: detail.job.canonical_key,
-    company: detail.job.company,
-    title: detail.job.title,
-    location: detail.job.location,
-    workplaceMode: detail.job.workplace_mode,
-    status: detail.job.status as JobRecord["status"],
-    fitScore: detail.job.fit_score,
-    source: detail.job.source,
-    sourceUrl: detail.job.source_url,
-    applicationUrl: detail.job.application_url,
-    postedAt: detail.job.posted_at,
-    explanation: detail.job.explanation,
-    descriptionText: detail.job.description_text,
+    id: jobRow.id,
+    canonicalKey: jobRow.canonical_key,
+    company: jobRow.company,
+    title: jobRow.title,
+    location: jobRow.location,
+    workplaceMode: jobRow.workplace_mode,
+    status: jobRow.status as JobRecord["status"],
+    fitScore: jobRow.fit_score,
+    source: jobRow.source,
+    sourceUrl: jobRow.source_url,
+    applicationUrl: jobRow.application_url,
+    postedAt: jobRow.posted_at,
+    explanation: jobRow.explanation,
+    descriptionText: jobRow.description_text,
   };
-  const applications: ApplicationRecord[] = detail.applications.map((item) => ({
+  const applications: ApplicationRecord[] = applicationRows.filter((item) => item.job_id === id).map((item) => ({
     id: item.id,
     jobId: item.job_id,
     company: item.company,
@@ -50,7 +48,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <div>
             <p className="eyebrow">Job detail</p>
             <h1>{job.title}</h1>
-            <p>{job.company} • {job.location}</p>
+            <p>{job.company} - {job.location}</p>
           </div>
           <Link className="button-secondary" href="/jobs">
             Back to jobs
@@ -60,7 +58,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <article className="answer-card">
             <strong>Fit score</strong>
             <p>{Math.round(job.fitScore)}</p>
-            <p className="muted">{job.explanation.join(" • ")}</p>
+            <p className="muted">{job.explanation.join(" - ")}</p>
           </article>
           <article className="answer-card">
             <strong>Source</strong>

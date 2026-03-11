@@ -1,9 +1,9 @@
 import { JobsTable } from "../components/jobs-table";
 import { StatCard } from "../components/stat-card";
-import { getDashboardData } from "../lib/api";
+import { getDashboardData, getHealth } from "../lib/api";
 
 export default async function HomePage() {
-  const data = await getDashboardData();
+  const [data, health] = await Promise.all([getDashboardData(), getHealth()]);
 
   return (
     <main className="page">
@@ -22,6 +22,19 @@ export default async function HomePage() {
         <StatCard label="Active Sources" value={String(data.sources.filter((item) => item.enabled).length)} detail="Brave + manual URLs" />
         <StatCard label="Answer Bank" value={String(data.answers.length)} detail="Reusable approved responses" />
         <StatCard label="Recent Runs" value={String(data.runs.length)} detail="Discovery, sync, and assist logs" />
+      </section>
+
+      <section className="panel">
+        <div className="panel-header">
+          <h2>System Health</h2>
+          <p>Use this before testing discovery, answer generation, or profile persistence.</p>
+        </div>
+        <div className="stats-grid">
+          <StatCard label="Persistence" value={health.persistence_mode} detail={health.supabase_configured ? "Supabase configured" : "Falling back to file storage"} />
+          <StatCard label="Brave Search" value={health.brave_configured ? "ready" : "missing"} detail="Needed for real job discovery" />
+          <StatCard label="OpenRouter" value={health.openrouter_configured ? "ready" : "missing"} detail="Needed for Gemini 2.5 Flash drafting" />
+          <StatCard label="API" value={health.status} detail="Route handlers responding" />
+        </div>
       </section>
 
       <section className="panel">

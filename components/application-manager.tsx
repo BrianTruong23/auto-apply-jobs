@@ -2,11 +2,8 @@
 
 import { useState } from "react";
 
+import { assertApiResponse, formatApiErrorMessage, getClientApiBaseUrl } from "@/lib/client-api";
 import type { ApplicationRecord, JobRecord } from "@/types";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api` : "http://localhost:3000/api");
 
 export function ApplicationManager({
   job,
@@ -27,7 +24,7 @@ export function ApplicationManager({
     setState("saving");
     setMessage("");
     try {
-      const response = await fetch(`${API_BASE_URL}/applications`, {
+      const response = await fetch(`${getClientApiBaseUrl()}/api/applications`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -37,9 +34,7 @@ export function ApplicationManager({
           notes,
         }),
       });
-      if (!response.ok) {
-        throw new Error("Create failed");
-      }
+      await assertApiResponse(response);
       const row = await response.json();
       const mapped: ApplicationRecord = {
         id: row.id,
@@ -54,9 +49,9 @@ export function ApplicationManager({
       setApplications((current) => [mapped, ...current]);
       setMessage("Application tracked.");
       setState("idle");
-    } catch {
+    } catch (error) {
       setState("error");
-      setMessage("Could not save application.");
+      setMessage(formatApiErrorMessage(error, "Could not save application."));
     }
   }
 
@@ -64,7 +59,7 @@ export function ApplicationManager({
     setState("saving");
     setMessage("");
     try {
-      const response = await fetch(`${API_BASE_URL}/applications/${applicationId}`, {
+      const response = await fetch(`${getClientApiBaseUrl()}/api/applications/${applicationId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -73,9 +68,7 @@ export function ApplicationManager({
           notes,
         }),
       });
-      if (!response.ok) {
-        throw new Error("Update failed");
-      }
+      await assertApiResponse(response);
       const row = await response.json();
       setApplications((current) =>
         current.map((item) =>
@@ -95,9 +88,9 @@ export function ApplicationManager({
       );
       setMessage("Application updated.");
       setState("idle");
-    } catch {
+    } catch (error) {
       setState("error");
-      setMessage("Could not update application.");
+      setMessage(formatApiErrorMessage(error, "Could not update application."));
     }
   }
 

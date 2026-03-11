@@ -2,11 +2,8 @@
 
 import { useState } from "react";
 
+import { assertApiResponse, formatApiErrorMessage, getClientApiBaseUrl } from "@/lib/client-api";
 import type { AnswerBankEntry, DraftAnswerResult } from "../types";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api` : "http://localhost:3000/api");
 
 export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBankEntry[] }) {
   const [question, setQuestion] = useState("Why do you want to work here?");
@@ -15,14 +12,16 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
   const [jobDescription, setJobDescription] = useState("");
   const [draftState, setDraftState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [draft, setDraft] = useState<DraftAnswerResult | null>(null);
+  const [message, setMessage] = useState("");
 
   async function generateDraft(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setDraftState("loading");
     setDraft(null);
+    setMessage("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/answers/draft`, {
+      const response = await fetch(`${getClientApiBaseUrl()}/api/answers/draft`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -33,9 +32,7 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Draft request failed");
-      }
+      await assertApiResponse(response);
 
       const result = (await response.json()) as {
         question_type?: string;
@@ -50,8 +47,9 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
         rationale: result.rationale ?? [],
       });
       setDraftState("done");
-    } catch {
+    } catch (error) {
       setDraftState("error");
+      setMessage(formatApiErrorMessage(error, "Draft generation failed. Check OpenRouter and Supabase configuration."));
     }
   }
 
@@ -81,7 +79,7 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
               {draftState === "loading" ? "Generating..." : "Generate draft"}
             </button>
             {draftState === "error" ? (
-              <span className="inline-message inline-error">Draft generation failed. Check backend and OpenRouter config.</span>
+              <span className="inline-message inline-error">{message || "Draft generation failed. Check OpenRouter and Supabase configuration."}</span>
             ) : null}
           </div>
         </form>
@@ -103,6 +101,10 @@ export function AnswerWorkbench({ initialAnswers }: { initialAnswers: AnswerBank
               <span className="badge">{answer.usageCount} uses</span>
             </div>
             <p className="muted">{answer.normalizedQuestion}</p>
+            <p className="muted">
+              Scope: {answer.companyContext || "any company"}
+              {answer.roleContext ? ` · ${answer.roleContext}` : ""}
+            </p>
             <p>{answer.answerText}</p>
           </article>
         ))}

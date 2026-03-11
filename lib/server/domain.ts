@@ -1,4 +1,6 @@
-import { readStore, type AppData } from "./store";
+import { ensureSeedData, getProfileRecord } from "./repository";
+import type { AppData } from "./store";
+export { selectReusableAnswer } from "./answer-reuse";
 
 export function normalizeText(value: string) {
   return value
@@ -20,6 +22,7 @@ export function classifyQuestion(question: string) {
   if (lowered.includes("strength")) return "strengths";
   return "general";
 }
+
 
 export function scoreJob(data: AppData, job: { title: string; company: string; location: string; workplace_mode: string }) {
   const profile = data.profile;
@@ -68,7 +71,8 @@ export async function generateAnswerWithOpenRouter(input: {
   const model = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
   if (!apiKey) return null;
 
-  const data = await readStore();
+  await ensureSeedData();
+  const profile = await getProfileRecord();
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -90,7 +94,7 @@ export async function generateAnswerWithOpenRouter(input: {
             company: input.company,
             role: input.role,
             job_description: input.jobDescription,
-            profile: data.profile,
+            profile,
             constraints: ["under 180 words", "no bullet points", "specific and practical"],
           }),
         },

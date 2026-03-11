@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { assertApiResponse, formatApiErrorMessage, getClientApiBaseUrl } from "@/lib/client-api";
 import type { Profile } from "../types";
 
 type ProfilePayload = {
@@ -15,10 +16,6 @@ type ProfilePayload = {
   preferred_companies: string[];
   skills: string[];
 };
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api` : "http://localhost:3000/api");
 
 function splitCsv(value: string) {
   return value
@@ -36,9 +33,31 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
   const [preferredRoles, setPreferredRoles] = useState(profile.preferredRoles.join(", "));
   const [preferredLocations, setPreferredLocations] = useState(profile.preferredLocations.join(", "));
   const [preferredCompanies, setPreferredCompanies] = useState(profile.preferredCompanies.join(", "));
-  const [resumeText, setResumeText] = useState("");
+  const [resumeText, setResumeText] = useState(profile.resumeText);
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  async function onResumeFileSelected(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const isTextFile =
+      file.type.startsWith("text/") ||
+      /\.(txt|md|json|csv)$/i.test(file.name);
+
+    if (!isTextFile) {
+      setState("error");
+      setMessage("File selected, but automatic parsing currently supports text-based resume files only. Paste PDF or DOCX text below.");
+      return;
+    }
+
+    const text = await file.text();
+    setResumeText(text);
+    setState("saved");
+    setMessage(`Loaded resume text from ${file.name}. Save profile to persist it.`);
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,21 +77,19 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/profile`, {
+      const response = await fetch(`${getClientApiBaseUrl()}/api/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error("Profile update failed");
-      }
+      await assertApiResponse(response);
 
       setState("saved");
       setMessage("Profile saved.");
-    } catch {
+    } catch (error) {
       setState("error");
-      setMessage("Unable to save profile. Check that the backend is running.");
+      setMessage(formatApiErrorMessage(error, "Unable to save profile. Check the API route and server logs."));
     }
   }
 
@@ -113,6 +130,10 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
       <label className="field field-full">
         <span>Resume text</span>
         <textarea rows={6} value={resumeText} onChange={(event) => setResumeText(event.target.value)} />
+      </label>
+      <label className="field field-full">
+        <span>Import resume text file</span>
+        <input type="file" accept=".txt,.md,.json,.csv,.pdf,.doc,.docx" onChange={onResumeFileSelected} />
       </label>
       <div className="form-actions field-full">
         <button className="button-primary" type="submit" disabled={state === "saving"}>

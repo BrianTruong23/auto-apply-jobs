@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 
+import { assertApiResponse, formatApiErrorMessage, getClientApiBaseUrl } from "@/lib/client-api";
 import { SourceList } from "./source-list";
 import type { DiscoveryResult, JobSource } from "../types";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api` : "http://localhost:3000/api");
 
 function splitCsv(value: string) {
   return value
@@ -27,6 +24,7 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
   const [locations, setLocations] = useState("");
   const [workplaceModes, setWorkplaceModes] = useState("remote");
   const [sourceMessage, setSourceMessage] = useState("");
+  const [sourceMessageTone, setSourceMessageTone] = useState<"saved" | "error">("saved");
 
   const [discoveryKeywords, setDiscoveryKeywords] = useState("software engineer ai");
   const [discoveryCompanies, setDiscoveryCompanies] = useState("");
@@ -35,13 +33,15 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
   const [manualUrls, setManualUrls] = useState("");
   const [discoveryState, setDiscoveryState] = useState<"idle" | "running" | "done" | "error">("idle");
   const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+  const [discoveryMessage, setDiscoveryMessage] = useState("");
 
   async function createSource(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSourceMessage("");
+    setSourceMessageTone("saved");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/sources`, {
+      const response = await fetch(`${getClientApiBaseUrl()}/api/sources`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -57,9 +57,7 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create source");
-      }
+      await assertApiResponse(response);
 
       const row = await response.json();
       setSources((current) => [
@@ -85,8 +83,10 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
       setRoles("");
       setLocations("");
       setSourceMessage("Source created.");
-    } catch {
-      setSourceMessage("Could not create source. Check backend availability.");
+      setSourceMessageTone("saved");
+    } catch (error) {
+      setSourceMessage(formatApiErrorMessage(error, "Could not create source."));
+      setSourceMessageTone("error");
     }
   }
 
@@ -94,9 +94,10 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
     event.preventDefault();
     setDiscoveryState("running");
     setDiscoveryResult(null);
+    setDiscoveryMessage("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/sources/discover`, {
+      const response = await fetch(`${getClientApiBaseUrl()}/api/sources/discover`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -108,15 +109,14 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Discovery failed");
-      }
+      await assertApiResponse(response);
 
       const result = (await response.json()) as DiscoveryResult;
       setDiscoveryResult(result);
       setDiscoveryState("done");
-    } catch {
+    } catch (error) {
       setDiscoveryState("error");
+      setDiscoveryMessage(formatApiErrorMessage(error, "Discovery failed. Check Supabase and Brave configuration."));
     }
   }
 
@@ -165,7 +165,11 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
             </label>
             <div className="form-actions field-full">
               <button className="button-primary" type="submit">Add source</button>
-              {sourceMessage ? <span className="inline-message inline-saved">{sourceMessage}</span> : null}
+              {sourceMessage ? (
+                <span className={sourceMessageTone === "error" ? "inline-message inline-error" : "inline-message inline-saved"}>
+                  {sourceMessage}
+                </span>
+              ) : null}
             </div>
           </form>
         </article>
@@ -198,7 +202,7 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
                 {discoveryState === "running" ? "Running..." : "Run discovery"}
               </button>
               {discoveryState === "error" ? (
-                <span className="inline-message inline-error">Discovery failed. Check backend and Brave key.</span>
+                <span className="inline-message inline-error">{discoveryMessage || "Discovery failed. Check Supabase and Brave configuration."}</span>
               ) : null}
             </div>
           </form>
@@ -208,6 +212,16 @@ export function SourceManager({ initialSources }: { initialSources: JobSource[] 
               <p><strong>Processed:</strong> {discoveryResult.total_processed}</p>
               <p><strong>Created:</strong> {discoveryResult.created}</p>
               <p><strong>Fallback:</strong> {discoveryResult.used_fallback ? "yes" : "no"}</p>
+              <div className="stack">
+                {discoveryResult.jobs.slice(0, 5).map((job) => (
+                  <p key={job.id}>
+                    <strong>{job.company}</strong> · {job.title} ·{" "}
+                    <a href={job.applicationUrl} target="_blank" rel="noreferrer">
+                      open posting
+                    </a>
+                  </p>
+                ))}
+              </div>
             </div>
           ) : null}
         </article>

@@ -5,7 +5,7 @@ Human-in-the-loop MVP for discovering jobs, organizing opportunities, drafting a
 ## Stack
 
 - App: Next.js 15 + TypeScript + App Router + Route Handlers
-- Storage: local JSON store fallback today, with Supabase/Postgres envs reserved for the next persistence step
+- Storage: Supabase via `@supabase/supabase-js`, with local JSON fallback when Supabase envs are absent
 - Background work: queue abstraction with an in-memory implementation for MVP and Redis/Celery or Dramatiq later
 - Search: Brave Search API
 - LLM: OpenRouter using `google/gemini-2.5-flash`
@@ -59,8 +59,8 @@ Env notes:
 - `BRAVE_SEARCH_API_KEY` powers job discovery.
 - `OPENREUTER_API` or `OPENROUTER_API_KEY` powers LLM answers through OpenRouter.
 - `OPENROUTER_MODEL` defaults to `google/gemini-2.5-flash`.
-- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` are available for future direct Supabase integration.
-- `NEXT_CONNECTION_STRING` is reserved for server-side Postgres/Supabase persistence.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` power the Supabase SDK integration.
+- `SUPABASE_SERVICE_ROLE_KEY` is optional but recommended for server-side writes if your RLS policies block the publishable key.
 
 ## Single-App API
 
@@ -102,10 +102,10 @@ Implemented endpoints:
 
 - The root of the repo is now the canonical Next.js app.
 - Existing `frontend/` and `backend/` folders are legacy scaffolding from the earlier split-app version.
-- The unified app now uses `NEXT_CONNECTION_STRING` for Postgres/Supabase persistence when provided.
-- Postgres writes now use table-level CRUD helpers instead of rewriting the entire store.
-- SQL migrations live in [lib/server/migrations](/Users/thangtruong/Documents/auto-apply-jobs/lib/server/migrations).
-- If `NEXT_CONNECTION_STRING` is not set, it falls back to the local JSON store in `.data/`.
+- The unified app now talks to Supabase through the Supabase SDK when Supabase env vars are present.
+- Writes use table-level CRUD helpers instead of whole-store rewrites.
+- SQL bootstrap files live in [lib/server/migrations](/Users/thangtruong/Documents/auto-apply-jobs/lib/server/migrations) and should be run in the Supabase SQL Editor.
+- If Supabase env vars are not set, it falls back to the local JSON store in `.data/`.
 - The site now includes a job detail page and application tracking UI.
 
 ## Testing
@@ -116,14 +116,29 @@ Unit tests:
 npm test
 ```
 
-Manual verification for step 1, DB persistence:
+Manual verification for persistence with Supabase:
 
-1. Set `NEXT_CONNECTION_STRING` in `.env.local` to your Supabase/Postgres connection string.
+1. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` in `.env.local`.
+2. If your RLS policies are strict, also set `SUPABASE_SERVICE_ROLE_KEY` for server-side writes.
+3. Run the SQL in [lib/server/migrations/001_initial.sql](/Users/thangtruong/Documents/auto-apply-jobs/lib/server/migrations/001_initial.sql) in the Supabase SQL Editor.
+4. Run `npm install`.
+5. Run `npm run dev`.
+6. Open `http://localhost:3000/`.
+7. Confirm the health panel shows `Persistence: supabase`.
+8. Open `http://localhost:3000/profile` and save a profile change.
+9. Refresh the page and confirm the change persists.
+10. Check Supabase tables such as `profiles`, `job_sources`, `jobs`, `applications`, and `runs`.
+
+Manual verification for Brave Search:
+
+1. Add `BRAVE_SEARCH_API_KEY` in `.env.local`.
 2. Run `npm install`.
 3. Run `npm run dev`.
-4. Open `http://localhost:3000/profile` and save a profile change.
-5. Stop the app, restart it, and confirm the change persists.
-6. Open your database and verify tables such as `profiles`, `job_sources`, `jobs`, `applications`, and `runs` were created.
+4. Confirm the health panel shows `Brave Search: ready`.
+5. Open `http://localhost:3000/sources`.
+6. Run discovery with a company and role.
+7. Confirm the result panel shows returned posting links, not just counts.
+8. Open several returned links and verify they land on real job postings or company careers pages.
 
 Manual verification for step 2, job detail and applications:
 
@@ -133,6 +148,24 @@ Manual verification for step 2, job detail and applications:
 4. On the job detail page, create an application record.
 5. Open `http://localhost:3000/applications` and confirm the record appears.
 6. Return to the job detail page, update the application, and confirm the updated state is reflected after refresh.
+
+Manual verification for LLM draft answers:
+
+1. Add `OPENREUTER_API` or `OPENROUTER_API_KEY` in `.env.local`.
+2. Confirm the health panel shows `OpenRouter: ready`.
+3. Open `http://localhost:3000/answers`.
+4. Submit a question for a company that does not already have a company-scoped saved answer.
+5. A reliable test is using the same question with a different company name.
+6. Confirm a non-fallback draft returns and the rationale mentions `google/gemini-2.5-flash`.
+
+Manual verification for resume import on the profile page:
+
+1. Open `http://localhost:3000/profile`.
+2. Use `Import resume text file`.
+3. For `.txt`, `.md`, `.json`, or `.csv` files, confirm the resume text area is populated immediately.
+4. Save the profile and refresh.
+5. Confirm the `Resume text` card still shows characters loaded.
+6. Note that PDF and DOCX selection is accepted by the picker, but automatic text extraction is not implemented yet.
 
 ## Future Scope
 

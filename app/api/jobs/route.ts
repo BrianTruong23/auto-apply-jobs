@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 
-import { readStore } from "@/lib/server/store";
+import { listJobRecords } from "@/lib/server/repository";
 
 export async function GET() {
-  const data = await readStore();
-  return NextResponse.json(data.jobs);
+  try {
+    return NextResponse.json(await listJobRecords());
+  } catch (error) {
+    return NextResponse.json({ detail: error instanceof Error ? error.message : "Failed to load jobs." }, { status: 500 });
+  }
 }

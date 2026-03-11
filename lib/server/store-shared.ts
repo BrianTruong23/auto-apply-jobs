@@ -48,6 +48,8 @@ export type AnswerRecord = {
   id: string;
   question_type: string;
   normalized_question: string;
+  company_context?: string;
+  role_context?: string;
   answer_text: string;
   usage_count: number;
   last_used_at?: string;
@@ -116,6 +118,8 @@ export function createSeedData(): AppData {
         id: "ans_1",
         question_type: "motivation",
         normalized_question: "why do you want to work here",
+        company_context: undefined,
+        role_context: undefined,
         answer_text:
           "I want to work on products where strong engineering directly improves how people make decisions.",
         usage_count: 8,
@@ -188,6 +192,8 @@ export function mapDbData(rows: {
       id: String(row.id),
       question_type: String(row.question_type),
       normalized_question: String(row.normalized_question),
+      company_context: row.company_context ? String(row.company_context) : undefined,
+      role_context: row.role_context ? String(row.role_context) : undefined,
       answer_text: String(row.answer_text),
       usage_count: Number(row.usage_count),
       last_used_at: row.last_used_at ? String(row.last_used_at) : undefined,
