@@ -53,14 +53,6 @@ export default async function HomePage() {
           <h1>Overview</h1>
           <p>A quiet overview of your search pipeline, current priorities, and the systems supporting each application decision.</p>
         </div>
-        <div className="page-header-actions">
-          <a href="/sources" className="button-secondary">
-            Sources
-          </a>
-          <a href="/answers" className="button-primary">
-            New draft
-          </a>
-        </div>
       </section>
 
       <section className="hero">
