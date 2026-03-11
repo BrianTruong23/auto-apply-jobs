@@ -41,7 +41,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="shell">
       <aside className="sidebar">
         <div className="brand-block">
-          <div className="brand-mark">JH</div>
+          <div className="brand-mark">
+            <img src="/app-icon.svg" alt="Job Application Hub icon" className="brand-mark-image" />
+          </div>
           <div className="brand">Job Application Hub</div>
           <div className="brand-subtitle">A focused workspace for discovering roles, managing applications, and reviewing each step with care.</div>
         </div>

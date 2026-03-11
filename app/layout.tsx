@@ -7,6 +7,11 @@ import { ThemeProvider } from "../components/theme-provider";
 export const metadata: Metadata = {
   title: "Job Application Hub",
   description: "Human-in-the-loop job application management dashboard.",
+  icons: {
+    icon: "/app-icon.svg",
+    shortcut: "/app-icon.svg",
+    apple: "/app-icon.svg",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

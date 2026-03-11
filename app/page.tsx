@@ -110,9 +110,9 @@ export default async function HomePage() {
           <div className="grid-4">
             {pipeline.map((item) => (
               <div className="mini-panel" key={item.label}>
-                <div className="row">
+                <div className="stack">
                   <span className={`badge badge-${item.tone}`}>{item.label}</span>
-                  <strong>{item.count}</strong>
+                  <strong className="pipeline-metric-value">{item.count}</strong>
                 </div>
                 <p className="muted">Current jobs in this stage.</p>
               </div>
