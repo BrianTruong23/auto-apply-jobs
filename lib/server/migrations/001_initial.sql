@@ -5,6 +5,7 @@ create table if not exists schema_migrations (
 
 create table if not exists profiles (
   id text primary key,
+  user_id text not null unique,
   full_name text not null,
   email text not null,
   location text not null,
@@ -18,6 +19,7 @@ create table if not exists profiles (
 
 create table if not exists job_sources (
   id text primary key,
+  user_id text not null,
   name text not null,
   type text not null,
   base_url text,
@@ -32,7 +34,8 @@ create table if not exists job_sources (
 
 create table if not exists jobs (
   id text primary key,
-  canonical_key text not null unique,
+  user_id text not null,
+  canonical_key text not null,
   company text not null,
   title text not null,
   location text not null,
@@ -49,8 +52,11 @@ create table if not exists jobs (
   normalized_payload jsonb not null
 );
 
+create unique index if not exists jobs_user_canonical_idx on jobs (user_id, canonical_key);
+
 create table if not exists answers (
   id text primary key,
+  user_id text not null,
   question_type text not null,
   normalized_question text not null,
   company_context text,
@@ -62,6 +68,7 @@ create table if not exists answers (
 
 create table if not exists applications (
   id text primary key,
+  user_id text not null,
   job_id text not null,
   company text not null,
   title text not null,
@@ -73,6 +80,7 @@ create table if not exists applications (
 
 create table if not exists runs (
   id text primary key,
+  user_id text not null,
   run_type text not null,
   status text not null,
   started_at text not null,

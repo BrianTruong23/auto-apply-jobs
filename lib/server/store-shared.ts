@@ -1,5 +1,6 @@
 export type ProfileRecord = {
   id: string;
+  user_id?: string;
   full_name: string;
   email: string;
   location: string;
@@ -13,6 +14,7 @@ export type ProfileRecord = {
 
 export type SourceRecord = {
   id: string;
+  user_id?: string;
   name: string;
   type: string;
   base_url?: string;
@@ -27,6 +29,7 @@ export type SourceRecord = {
 
 export type JobRecord = {
   id: string;
+  user_id?: string;
   canonical_key: string;
   company: string;
   title: string;
@@ -46,6 +49,7 @@ export type JobRecord = {
 
 export type AnswerRecord = {
   id: string;
+  user_id?: string;
   question_type: string;
   normalized_question: string;
   company_context?: string;
@@ -57,6 +61,7 @@ export type AnswerRecord = {
 
 export type ApplicationRecord = {
   id: string;
+  user_id?: string;
   job_id: string;
   company: string;
   title: string;
@@ -68,6 +73,7 @@ export type ApplicationRecord = {
 
 export type RunRecord = {
   id: string;
+  user_id?: string;
   run_type: string;
   status: string;
   started_at: string;
@@ -101,6 +107,7 @@ export function createSeedData(): AppData {
     sources: [
       {
         id: "src_1",
+        user_id: undefined,
         name: "AI Product Roles",
         type: "search_keyword",
         keywords: ["software engineer ai", "full stack engineer llm"],
@@ -116,6 +123,7 @@ export function createSeedData(): AppData {
     answers: [
       {
         id: "ans_1",
+        user_id: undefined,
         question_type: "motivation",
         normalized_question: "why do you want to work here",
         company_context: undefined,
@@ -146,6 +154,7 @@ export function mapDbData(rows: {
     profile: profileRow
       ? {
           id: String(profileRow.id),
+          user_id: profileRow.user_id ? String(profileRow.user_id) : undefined,
           full_name: String(profileRow.full_name),
           email: String(profileRow.email),
           location: String(profileRow.location),
@@ -159,6 +168,7 @@ export function mapDbData(rows: {
       : seed.profile,
     sources: rows.sources.map((row) => ({
       id: String(row.id),
+      user_id: row.user_id ? String(row.user_id) : undefined,
       name: String(row.name),
       type: String(row.type),
       base_url: row.base_url ? String(row.base_url) : undefined,
@@ -172,6 +182,7 @@ export function mapDbData(rows: {
     })),
     jobs: rows.jobs.map((row) => ({
       id: String(row.id),
+      user_id: row.user_id ? String(row.user_id) : undefined,
       canonical_key: String(row.canonical_key),
       company: String(row.company),
       title: String(row.title),
@@ -190,6 +201,7 @@ export function mapDbData(rows: {
     })),
     answers: rows.answers.map((row) => ({
       id: String(row.id),
+      user_id: row.user_id ? String(row.user_id) : undefined,
       question_type: String(row.question_type),
       normalized_question: String(row.normalized_question),
       company_context: row.company_context ? String(row.company_context) : undefined,
@@ -200,6 +212,7 @@ export function mapDbData(rows: {
     })),
     applications: rows.applications.map((row) => ({
       id: String(row.id),
+      user_id: row.user_id ? String(row.user_id) : undefined,
       job_id: String(row.job_id),
       company: String(row.company),
       title: String(row.title),
@@ -210,6 +223,7 @@ export function mapDbData(rows: {
     })),
     runs: rows.runs.map((row) => ({
       id: String(row.id),
+      user_id: row.user_id ? String(row.user_id) : undefined,
       run_type: String(row.run_type),
       status: String(row.status),
       started_at: String(row.started_at),

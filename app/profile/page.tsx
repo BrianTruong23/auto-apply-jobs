@@ -1,7 +1,13 @@
+import { AuthRequired } from "@/components/auth-required";
 import { getProfile } from "../../lib/api";
 import { ProfileEditor } from "../../components/profile-editor";
+import { isAuthenticated } from "../../lib/api";
 
 export default async function ProfilePage() {
+  if (!(await isAuthenticated())) {
+    return <AuthRequired title="Log in to manage your profile" />;
+  }
+
   const profile = await getProfile();
 
   return (

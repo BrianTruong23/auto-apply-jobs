@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import {
   createSeedData,
   nextId,
@@ -11,15 +13,19 @@ import {
 import { insertRow, isServerSupabaseConfigured, selectMany, selectOne, upsertRow, updateRow } from "./supabase-server";
 import { readStore, writeStore } from "./store";
 
-export async function getProfileRecord() {
+export async function getProfileRecord(userId: string) {
   if (!isServerSupabaseConfigured()) {
     return (await readStore()).profile;
   }
 
-  return selectOne<ProfileRecord>("Loading profile", "profiles", "select=*&order=id.asc&limit=1");
+  return selectOne<ProfileRecord>(
+    "Loading profile",
+    "profiles",
+    `select=*&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+  );
 }
 
-export async function upsertProfileRecord(profile: ProfileRecord) {
+export async function upsertProfileRecord(userId: string, profile: ProfileRecord) {
   if (!isServerSupabaseConfigured()) {
     const data = await readStore();
     data.profile = profile;
@@ -27,18 +33,22 @@ export async function upsertProfileRecord(profile: ProfileRecord) {
     return profile;
   }
 
-  return (await upsertRow<ProfileRecord>("Saving profile", "profiles", profile, "id")) as ProfileRecord;
+  return (await upsertRow<ProfileRecord>("Saving profile", "profiles", { ...profile, user_id: userId }, "user_id")) as ProfileRecord;
 }
 
-export async function listSourceRecords() {
+export async function listSourceRecords(userId: string) {
   if (!isServerSupabaseConfigured()) {
     return (await readStore()).sources;
   }
 
-  return selectMany<SourceRecord>("Loading job sources", "job_sources", "select=*&order=id.desc");
+  return selectMany<SourceRecord>(
+    "Loading job sources",
+    "job_sources",
+    `select=*&user_id=eq.${encodeURIComponent(userId)}&order=id.desc`,
+  );
 }
 
-export async function createSourceRecord(source: SourceRecord) {
+export async function createSourceRecord(userId: string, source: SourceRecord) {
   if (!isServerSupabaseConfigured()) {
     const data = await readStore();
     data.sources.unshift(source);
@@ -46,26 +56,34 @@ export async function createSourceRecord(source: SourceRecord) {
     return source;
   }
 
-  return (await insertRow<SourceRecord>("Creating job source", "job_sources", source)) as SourceRecord;
+  return (await insertRow<SourceRecord>("Creating job source", "job_sources", { ...source, user_id: userId })) as SourceRecord;
 }
 
-export async function listJobRecords() {
+export async function listJobRecords(userId: string) {
   if (!isServerSupabaseConfigured()) {
     return (await readStore()).jobs;
   }
 
-  return selectMany<JobRecord>("Loading jobs", "jobs", "select=*&order=fit_score.desc,id.desc");
+  return selectMany<JobRecord>(
+    "Loading jobs",
+    "jobs",
+    `select=*&user_id=eq.${encodeURIComponent(userId)}&order=fit_score.desc,id.desc`,
+  );
 }
 
-export async function getJobRecord(jobId: string) {
+export async function getJobRecord(userId: string, jobId: string) {
   if (!isServerSupabaseConfigured()) {
     return (await readStore()).jobs.find((item) => item.id === jobId) || null;
   }
 
-  return selectOne<JobRecord>("Loading job", "jobs", `select=*&id=eq.${encodeURIComponent(jobId)}&limit=1`);
+  return selectOne<JobRecord>(
+    "Loading job",
+    "jobs",
+    `select=*&id=eq.${encodeURIComponent(jobId)}&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+  );
 }
 
-export async function upsertJobRecord(job: JobRecord) {
+export async function upsertJobRecord(userId: string, job: JobRecord) {
   if (!isServerSupabaseConfigured()) {
     const data = await readStore();
     const existing = data.jobs.find((item) => item.canonical_key === job.canonical_key);
@@ -81,24 +99,28 @@ export async function upsertJobRecord(job: JobRecord) {
   const existingRow = await selectOne<{ id: string }>(
     "Checking existing job",
     "jobs",
-    `select=id&canonical_key=eq.${encodeURIComponent(job.canonical_key)}&limit=1`,
+    `select=id&canonical_key=eq.${encodeURIComponent(job.canonical_key)}&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
   );
-  const result = await upsertRow<JobRecord>("Saving job", "jobs", job, "canonical_key");
+  const result = await upsertRow<JobRecord>("Saving job", "jobs", { ...job, user_id: userId }, "user_id,canonical_key");
   return {
     job: result as JobRecord,
     created: !existingRow,
   };
 }
 
-export async function listAnswerRecords() {
+export async function listAnswerRecords(userId: string) {
   if (!isServerSupabaseConfigured()) {
     return (await readStore()).answers;
   }
 
-  return selectMany<AnswerRecord>("Loading answers", "answers", "select=*&order=usage_count.desc,id.asc");
+  return selectMany<AnswerRecord>(
+    "Loading answers",
+    "answers",
+    `select=*&user_id=eq.${encodeURIComponent(userId)}&order=usage_count.desc,id.asc`,
+  );
 }
 
-export async function createAnswerRecord(answer: AnswerRecord) {
+export async function createAnswerRecord(userId: string, answer: AnswerRecord) {
   if (!isServerSupabaseConfigured()) {
     const data = await readStore();
     data.answers.unshift(answer);
@@ -106,10 +128,10 @@ export async function createAnswerRecord(answer: AnswerRecord) {
     return answer;
   }
 
-  return (await insertRow<AnswerRecord>("Creating answer bank entry", "answers", answer)) as AnswerRecord;
+  return (await insertRow<AnswerRecord>("Creating answer bank entry", "answers", { ...answer, user_id: userId })) as AnswerRecord;
 }
 
-export async function incrementAnswerUsage(answerId: string) {
+export async function incrementAnswerUsage(userId: string, answerId: string) {
   if (!isServerSupabaseConfigured()) {
     const data = await readStore();
     const answer = data.answers.find((item) => item.id === answerId);
@@ -123,7 +145,7 @@ export async function incrementAnswerUsage(answerId: string) {
   const row = await selectOne<AnswerRecord>(
     "Loading answer usage",
     "answers",
-    `select=*&id=eq.${encodeURIComponent(answerId)}&limit=1`,
+    `select=*&id=eq.${encodeURIComponent(answerId)}&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
   );
   if (!row) {
     return null;
@@ -137,20 +159,24 @@ export async function incrementAnswerUsage(answerId: string) {
   return updateRow<AnswerRecord>(
     "Updating answer usage",
     "answers",
-    `id=eq.${encodeURIComponent(answerId)}`,
-    next,
+    `id=eq.${encodeURIComponent(answerId)}&user_id=eq.${encodeURIComponent(userId)}`,
+    { ...next, user_id: userId },
   );
 }
 
-export async function listApplicationRecords() {
+export async function listApplicationRecords(userId: string) {
   if (!isServerSupabaseConfigured()) {
     return (await readStore()).applications;
   }
 
-  return selectMany<ApplicationRecord>("Loading applications", "applications", "select=*&order=id.desc");
+  return selectMany<ApplicationRecord>(
+    "Loading applications",
+    "applications",
+    `select=*&user_id=eq.${encodeURIComponent(userId)}&order=id.desc`,
+  );
 }
 
-export async function createApplicationDbRecord(record: ApplicationRecord) {
+export async function createApplicationDbRecord(userId: string, record: ApplicationRecord) {
   if (!isServerSupabaseConfigured()) {
     const data = await readStore();
     data.applications.unshift(record);
@@ -158,10 +184,10 @@ export async function createApplicationDbRecord(record: ApplicationRecord) {
     return record;
   }
 
-  return (await insertRow<ApplicationRecord>("Creating application", "applications", record)) as ApplicationRecord;
+  return (await insertRow<ApplicationRecord>("Creating application", "applications", { ...record, user_id: userId })) as ApplicationRecord;
 }
 
-export async function updateApplicationDbRecord(record: ApplicationRecord) {
+export async function updateApplicationDbRecord(userId: string, record: ApplicationRecord) {
   if (!isServerSupabaseConfigured()) {
     const data = await readStore();
     const existing = data.applications.find((item) => item.id === record.id);
@@ -174,12 +200,12 @@ export async function updateApplicationDbRecord(record: ApplicationRecord) {
   return updateRow<ApplicationRecord>(
     "Updating application",
     "applications",
-    `id=eq.${encodeURIComponent(record.id)}`,
-    record,
+    `id=eq.${encodeURIComponent(record.id)}&user_id=eq.${encodeURIComponent(userId)}`,
+    { ...record, user_id: userId },
   );
 }
 
-export async function getApplicationRecord(applicationId: string) {
+export async function getApplicationRecord(userId: string, applicationId: string) {
   if (!isServerSupabaseConfigured()) {
     return (await readStore()).applications.find((item) => item.id === applicationId) || null;
   }
@@ -187,19 +213,23 @@ export async function getApplicationRecord(applicationId: string) {
   return selectOne<ApplicationRecord>(
     "Loading application",
     "applications",
-    `select=*&id=eq.${encodeURIComponent(applicationId)}&limit=1`,
+    `select=*&id=eq.${encodeURIComponent(applicationId)}&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
   );
 }
 
-export async function listRunRecords() {
+export async function listRunRecords(userId: string) {
   if (!isServerSupabaseConfigured()) {
     return (await readStore()).runs;
   }
 
-  return selectMany<RunRecord>("Loading runs", "runs", "select=*&order=started_at.desc");
+  return selectMany<RunRecord>(
+    "Loading runs",
+    "runs",
+    `select=*&user_id=eq.${encodeURIComponent(userId)}&order=started_at.desc`,
+  );
 }
 
-export async function createRunRecord(run: RunRecord) {
+export async function createRunRecord(userId: string, run: RunRecord) {
   if (!isServerSupabaseConfigured()) {
     const data = await readStore();
     data.runs.unshift(run);
@@ -207,32 +237,49 @@ export async function createRunRecord(run: RunRecord) {
     return run;
   }
 
-  return (await insertRow<RunRecord>("Creating run log", "runs", run)) as RunRecord;
+  return (await insertRow<RunRecord>("Creating run log", "runs", { ...run, user_id: userId })) as RunRecord;
 }
 
-export async function ensureSeedData() {
+export async function ensureSeedData(userId: string) {
   if (!isServerSupabaseConfigured()) {
     await readStore();
     return;
   }
 
-  const existingProfile = await selectOne<{ id: string }>("Checking seed profile", "profiles", "select=id&limit=1");
+  const existingProfile = await selectOne<{ id: string }>(
+    "Checking seed profile",
+    "profiles",
+    `select=id&user_id=eq.${encodeURIComponent(userId)}&limit=1`,
+  );
   if (existingProfile) {
     return;
   }
 
   const seed = createSeedData();
-  await upsertProfileRecord(seed.profile);
+  await upsertProfileRecord(userId, { ...seed.profile, user_id: userId });
   for (const source of seed.sources) {
-    await createSourceRecord(source);
+    await createSourceRecord(userId, { ...source, user_id: userId });
   }
   for (const answer of seed.answers) {
-    await createAnswerRecord(answer);
+    await createAnswerRecord(userId, { ...answer, user_id: userId });
   }
 }
 
-export async function allocateId(prefix: string) {
-  const data = await readStore();
+export async function allocateId(userId: string, prefix: string) {
+  if (isServerSupabaseConfigured()) {
+    return `${prefix}_${randomUUID().slice(0, 8)}`;
+  }
+
+  const data = isServerSupabaseConfigured()
+    ? {
+        profile: (await getProfileRecord(userId)) || createSeedData().profile,
+        sources: await listSourceRecords(userId),
+        jobs: await listJobRecords(userId),
+        answers: await listAnswerRecords(userId),
+        applications: await listApplicationRecords(userId),
+        runs: await listRunRecords(userId),
+      }
+    : await readStore();
   switch (prefix) {
     case "src":
       return nextId(prefix, data.sources.map((item) => item.id));

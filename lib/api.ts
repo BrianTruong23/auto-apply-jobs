@@ -1,5 +1,7 @@
-import { mockAnswers, mockJobs, mockRuns, mockSources } from "./mock-data";
+import { cookies } from "next/headers";
+
 import type { AnswerBankEntry, ApplicationRecord, JobDetailResult, JobRecord, JobSource, Profile, RunLog } from "../types";
+import { ACCESS_TOKEN_COOKIE } from "./server/auth";
 
 function getServerApiBaseUrl() {
   const configured = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -23,8 +25,10 @@ function getServerApiBaseUrl() {
 
 async function fetchJson<T>(path: string, fallback: T): Promise<T> {
   try {
+    const token = (await cookies()).get(ACCESS_TOKEN_COOKIE)?.value;
     const response = await fetch(`${getServerApiBaseUrl()}${path}`, {
       next: { revalidate: 0 },
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
 
     if (!response.ok) {
@@ -38,7 +42,7 @@ async function fetchJson<T>(path: string, fallback: T): Promise<T> {
 }
 
 export async function getJobs(): Promise<JobRecord[]> {
-  const rows = await fetchJson<any[]>("/jobs", mockJobs);
+  const rows = await fetchJson<any[]>("/jobs", []);
   return rows.map((row) => ({
     id: row.id,
     canonicalKey: row.canonical_key ?? row.canonicalKey,
@@ -60,15 +64,15 @@ export async function getJobs(): Promise<JobRecord[]> {
 export async function getProfile(): Promise<Profile> {
   const row = await fetchJson<any>("/profile", {
     id: "profile_1",
-    fullName: "Alex Candidate",
-    email: "alex@example.com",
-    location: "New York, NY",
-    summary: "Product-minded software engineer focused on AI-enabled workflow tools.",
+    fullName: "",
+    email: "",
+    location: "",
+    summary: "",
     resumeText: "",
-    preferredRoles: ["Software Engineer", "Full Stack Engineer", "AI Product Engineer"],
-    preferredLocations: ["New York, NY", "Remote"],
-    preferredCompanies: ["OpenAI", "Stripe", "Notion"],
-    skills: ["Python", "TypeScript", "Next.js", "FastAPI", "Postgres", "Playwright"],
+    preferredRoles: [],
+    preferredLocations: [],
+    preferredCompanies: [],
+    skills: [],
   });
   return {
     id: row.id,
@@ -85,7 +89,7 @@ export async function getProfile(): Promise<Profile> {
 }
 
 export async function getSources(): Promise<JobSource[]> {
-  const rows = await fetchJson<any[]>("/sources", mockSources);
+  const rows = await fetchJson<any[]>("/sources", []);
   return rows.map((row) => ({
     id: row.id,
     name: row.name,
@@ -102,7 +106,7 @@ export async function getSources(): Promise<JobSource[]> {
 }
 
 export async function getAnswers(): Promise<AnswerBankEntry[]> {
-  const rows = await fetchJson<any[]>("/answers", mockAnswers);
+  const rows = await fetchJson<any[]>("/answers", []);
   return rows.map((row) => ({
     id: row.id,
     questionType: row.question_type ?? row.questionType,
@@ -116,7 +120,7 @@ export async function getAnswers(): Promise<AnswerBankEntry[]> {
 }
 
 export async function getRuns(): Promise<RunLog[]> {
-  const rows = await fetchJson<any[]>("/runs", mockRuns);
+  const rows = await fetchJson<any[]>("/runs", []);
   return rows.map((row) => ({
     id: row.id,
     runType: row.run_type ?? row.runType,
@@ -192,4 +196,8 @@ export async function getHealth(): Promise<{
     brave_configured: false,
     openrouter_configured: false,
   });
+}
+
+export async function isAuthenticated() {
+  return Boolean((await cookies()).get(ACCESS_TOKEN_COOKIE)?.value);
 }

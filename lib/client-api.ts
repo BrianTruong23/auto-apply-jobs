@@ -22,7 +22,7 @@ export function formatApiErrorMessage(error: unknown, fallback: string) {
       return detail || "The server failed while saving. Check your Supabase configuration and the server logs.";
     }
     if (code.startsWith("HTTP_401") || code.startsWith("HTTP_403")) {
-      return detail || "The request was rejected by the server.";
+      return detail || "The request was rejected by the server. Log in and try again.";
     }
     if (code.startsWith("HTTP_404")) {
       return detail || "The API route was not found. Check that the app is using same-origin /api routes.";

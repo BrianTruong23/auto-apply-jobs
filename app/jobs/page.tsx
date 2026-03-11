@@ -1,7 +1,12 @@
+import { AuthRequired } from "@/components/auth-required";
 import { JobsTable } from "../../components/jobs-table";
-import { getJobs } from "../../lib/api";
+import { getJobs, isAuthenticated } from "../../lib/api";
 
 export default async function JobsPage() {
+  if (!(await isAuthenticated())) {
+    return <AuthRequired title="Log in to view your jobs" />;
+  }
+
   const jobs = await getJobs();
 
   return (

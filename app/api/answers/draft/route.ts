@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { requireRequestUser } from "@/lib/server/auth";
 import { classifyQuestion, generateAnswerWithOpenRouter, normalizeText, selectReusableAnswer } from "@/lib/server/domain";
-import { ensureSeedData, incrementAnswerUsage, listAnswerRecords } from "@/lib/server/repository";
+import { ensureSeedData, getProfileRecord, incrementAnswerUsage, listAnswerRecords } from "@/lib/server/repository";
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await requireRequestUser(request);
     const payload = (await request.json()) as Record<string, unknown>;
     const question = String(payload.question || "");
     const company = payload.company ? String(payload.company) : undefined;
     const role = payload.role ? String(payload.role) : undefined;
     const jobDescription = payload.job_description ? String(payload.job_description) : undefined;
 
-    await ensureSeedData();
-    const answers = await listAnswerRecords();
+    await ensureSeedData(user.id);
+    const [answers, profile] = await Promise.all([listAnswerRecords(user.id), getProfileRecord(user.id)]);
     const questionType = classifyQuestion(question);
     const normalizedQuestion = normalizeText(question);
     const reused = selectReusableAnswer(answers, {
@@ -23,7 +25,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (reused) {
-      await incrementAnswerUsage(reused.id);
+      await incrementAnswerUsage(user.id, reused.id);
       return NextResponse.json({
         question_type: questionType,
         suggested_answer: reused.answer_text,
@@ -38,7 +40,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const llmAnswer = await generateAnswerWithOpenRouter({ question, company, role, jobDescription });
+    const llmAnswer = await generateAnswerWithOpenRouter({ question, company, role, jobDescription, profile });
     if (llmAnswer) {
       return NextResponse.json({
         question_type: questionType,

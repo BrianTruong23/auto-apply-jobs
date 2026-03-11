@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthControls } from "./auth-controls";
 
 const navItems = [
   { href: "/", label: "Overview" },
@@ -26,6 +27,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
+        <AuthControls />
       </aside>
       <div className="content">{children}</div>
     </div>

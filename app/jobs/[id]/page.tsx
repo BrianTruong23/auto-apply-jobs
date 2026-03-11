@@ -2,14 +2,26 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ApplicationManager } from "@/components/application-manager";
+import { AuthRequired } from "@/components/auth-required";
+import { isAuthenticated } from "@/lib/api";
+import { getServerViewer } from "@/lib/server/auth";
 import { getJobRecord, listApplicationRecords } from "@/lib/server/repository";
 import type { ApplicationRecord, JobRecord } from "@/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  if (!(await isAuthenticated())) {
+    return <AuthRequired title="Log in to view job details" />;
+  }
+
+  const viewer = await getServerViewer();
+  if (!viewer) {
+    return <AuthRequired title="Log in to view job details" />;
+  }
+
   const { id } = await params;
-  const [jobRow, applicationRows] = await Promise.all([getJobRecord(id), listApplicationRecords()]);
+  const [jobRow, applicationRows] = await Promise.all([getJobRecord(viewer.id, id), listApplicationRecords(viewer.id)]);
   if (!jobRow) {
     notFound();
   }

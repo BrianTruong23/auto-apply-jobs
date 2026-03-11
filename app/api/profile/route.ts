@@ -1,21 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { requireRequestUser } from "@/lib/server/auth";
 import { ensureSeedData, getProfileRecord, upsertProfileRecord } from "@/lib/server/repository";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    await ensureSeedData();
-    return NextResponse.json(await getProfileRecord());
+    const user = await requireRequestUser(request);
+    await ensureSeedData(user.id);
+    return NextResponse.json(await getProfileRecord(user.id));
   } catch (error) {
-    return NextResponse.json({ detail: error instanceof Error ? error.message : "Failed to load profile." }, { status: 500 });
+    return NextResponse.json({ detail: error instanceof Error ? error.message : "Failed to load profile." }, { status: 401 });
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
+    const user = await requireRequestUser(request);
     const payload = (await request.json()) as Record<string, unknown>;
     const profile = {
-      id: "profile_1",
+      id: `profile_${user.id}`,
+      user_id: user.id,
       full_name: String(payload.full_name || ""),
       email: String(payload.email || ""),
       location: String(payload.location || ""),
@@ -26,9 +30,9 @@ export async function PUT(request: NextRequest) {
       preferred_companies: Array.isArray(payload.preferred_companies) ? payload.preferred_companies.map(String) : [],
       skills: Array.isArray(payload.skills) ? payload.skills.map(String) : [],
     };
-    await upsertProfileRecord(profile);
+    await upsertProfileRecord(user.id, profile);
     return NextResponse.json(profile);
   } catch (error) {
-    return NextResponse.json({ detail: error instanceof Error ? error.message : "Failed to save profile." }, { status: 500 });
+    return NextResponse.json({ detail: error instanceof Error ? error.message : "Failed to save profile." }, { status: 401 });
   }
 }

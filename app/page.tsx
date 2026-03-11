@@ -1,8 +1,13 @@
+import { AuthRequired } from "../components/auth-required";
 import { JobsTable } from "../components/jobs-table";
 import { StatCard } from "../components/stat-card";
-import { getDashboardData, getHealth } from "../lib/api";
+import { getDashboardData, getHealth, isAuthenticated } from "../lib/api";
 
 export default async function HomePage() {
+  if (!(await isAuthenticated())) {
+    return <AuthRequired title="Log in to access your dashboard" />;
+  }
+
   const [data, health] = await Promise.all([getDashboardData(), getHealth()]);
 
   return (

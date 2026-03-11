@@ -1,6 +1,11 @@
-import { getApplications } from "@/lib/api";
+import { AuthRequired } from "@/components/auth-required";
+import { getApplications, isAuthenticated } from "@/lib/api";
 
 export default async function ApplicationsPage() {
+  if (!(await isAuthenticated())) {
+    return <AuthRequired title="Log in to view your applications" />;
+  }
+
   const applications = await getApplications();
 
   return (

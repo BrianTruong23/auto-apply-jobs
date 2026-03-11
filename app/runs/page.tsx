@@ -1,6 +1,11 @@
-import { getRuns } from "../../lib/api";
+import { AuthRequired } from "@/components/auth-required";
+import { getRuns, isAuthenticated } from "../../lib/api";
 
 export default async function RunsPage() {
+  if (!(await isAuthenticated())) {
+    return <AuthRequired title="Log in to view run history" />;
+  }
+
   const runs = await getRuns();
 
   return (

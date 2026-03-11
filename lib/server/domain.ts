@@ -1,5 +1,5 @@
-import { ensureSeedData, getProfileRecord } from "./repository";
 import type { AppData } from "./store";
+import type { ProfileRecord } from "./store-shared";
 export { selectReusableAnswer } from "./answer-reuse";
 
 export function normalizeText(value: string) {
@@ -65,14 +65,13 @@ export async function generateAnswerWithOpenRouter(input: {
   company?: string;
   role?: string;
   jobDescription?: string;
+  profile?: ProfileRecord | null;
 }) {
   const apiKey =
     process.env.OPENROUTER_API_KEY || process.env.OPENREUTER_API || process.env.OPENROUTER_API || "";
   const model = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
   if (!apiKey) return null;
 
-  await ensureSeedData();
-  const profile = await getProfileRecord();
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -94,7 +93,7 @@ export async function generateAnswerWithOpenRouter(input: {
             company: input.company,
             role: input.role,
             job_description: input.jobDescription,
-            profile,
+            profile: input.profile || null,
             constraints: ["under 180 words", "no bullet points", "specific and practical"],
           }),
         },

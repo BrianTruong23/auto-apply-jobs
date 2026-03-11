@@ -1,10 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
+import { requireRequestUser } from "@/lib/server/auth";
 import { allocateId, createRunRecord, listJobRecords } from "@/lib/server/repository";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    const jobs = await listJobRecords();
+    const user = await requireRequestUser(request);
+    const jobs = await listJobRecords(user.id);
     const result = {
       mode: "preview",
       source_of_truth: "app_database",
@@ -26,8 +28,9 @@ export async function POST() {
       idempotency: "row key should be application_id or job_id plus profile_id",
     };
 
-    await createRunRecord({
-      id: await allocateId("run"),
+    await createRunRecord(user.id, {
+      id: await allocateId(user.id, "run"),
+      user_id: user.id,
       run_type: "spreadsheet_sync",
       status: "succeeded",
       started_at: new Date().toISOString(),

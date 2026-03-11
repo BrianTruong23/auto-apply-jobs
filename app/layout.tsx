@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { AuthSync } from "../components/auth-sync";
 import { Shell } from "../components/shell";
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
+        <AuthSync />
         <Shell>{children}</Shell>
       </body>
     </html>

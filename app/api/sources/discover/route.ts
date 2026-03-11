@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { requireRequestUser } from "@/lib/server/auth";
 import { canonicalKey, scoreJob, searchBrave } from "@/lib/server/domain";
 import {
   allocateId,
@@ -26,7 +27,8 @@ function splitArray(value: unknown) {
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureSeedData();
+    const user = await requireRequestUser(request);
+    await ensureSeedData(user.id);
     const payload = (await request.json()) as Record<string, unknown>;
     const keywords = splitArray(payload.keywords);
     const companies = splitArray(payload.companies);
@@ -75,12 +77,12 @@ export async function POST(request: NextRequest) {
           ];
 
     const results: DiscoveryCandidate[] = [...braveResults, ...manualResults, ...fallbackResults];
-    const profile = await getProfileRecord();
+    const profile = await getProfileRecord(user.id);
     if (!profile) {
       return NextResponse.json({ detail: "Profile is not initialized yet." }, { status: 500 });
     }
-    const jobsInStore = await listJobRecords();
-    const existingRuns = await listRunRecords();
+    const jobsInStore = await listJobRecords(user.id);
+    const existingRuns = await listRunRecords(user.id);
     const data = {
       profile,
       jobs: jobsInStore,
@@ -109,7 +111,8 @@ export async function POST(request: NextRequest) {
       const existing = data.jobs.find((job) => job.canonical_key === key);
       const score = scoreJob(data, { title, company, location, workplace_mode });
       const job = {
-        id: existing?.id || (await allocateId("job")),
+        id: existing?.id || (await allocateId(user.id, "job")),
+        user_id: user.id,
         canonical_key: key,
         company,
         title,
@@ -127,7 +130,7 @@ export async function POST(request: NextRequest) {
         raw_payload: item.raw_payload,
         normalized_payload: { company, title, location, workplace_mode },
       };
-      const result = await upsertJobRecord(job);
+      const result = await upsertJobRecord(user.id, job);
       if (result.created) {
         created += 1;
       }
@@ -139,9 +142,10 @@ export async function POST(request: NextRequest) {
       jobs.push(job);
     }
 
-    const runId = await allocateId("run");
-    await createRunRecord({
+    const runId = await allocateId(user.id, "run");
+    await createRunRecord(user.id, {
       id: runId,
+      user_id: user.id,
       run_type: "discovery",
       status: brave ? "succeeded" : "partial",
       started_at: new Date().toISOString(),

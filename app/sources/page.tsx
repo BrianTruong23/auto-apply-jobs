@@ -1,7 +1,12 @@
+import { AuthRequired } from "@/components/auth-required";
 import { SourceManager } from "../../components/source-manager";
-import { getSources } from "../../lib/api";
+import { getSources, isAuthenticated } from "../../lib/api";
 
 export default async function SourcesPage() {
+  if (!(await isAuthenticated())) {
+    return <AuthRequired title="Log in to manage job sources" />;
+  }
+
   const sources = await getSources();
 
   return (

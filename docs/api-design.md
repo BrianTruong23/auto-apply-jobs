@@ -1,13 +1,22 @@
 # API Design
 
-Base path: `/api/v1`
+Base path: `/api`
+
+## Auth
+
+- `GET /auth/me`
+  - Returns the authenticated Supabase user if a valid session cookie or bearer token is present.
+- `POST /auth/session`
+  - Mirrors a Supabase access token into a same-origin cookie for server-rendered pages and route handlers.
+- `DELETE /auth/session`
+  - Clears the server session cookie.
 
 ## Profile
 
 - `GET /profile`
-  - Returns primary user profile, preferences, and resume-derived context.
+  - Returns the authenticated user's profile, preferences, and resume-derived context.
 - `PUT /profile`
-  - Upserts the primary profile and preference fields used by scoring and answer generation.
+  - Upserts the authenticated user's profile and preference fields used by scoring and answer generation.
 - Future:
   - `POST /profile/resume`
 
@@ -72,3 +81,4 @@ Base path: `/api/v1`
 - Return structured explanations, not opaque scores.
 - Expose run IDs for every asynchronous or reviewable action.
 - Preserve raw payload references for debugging and audit.
+- Scope every read and write to the authenticated user.

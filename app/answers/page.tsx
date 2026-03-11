@@ -1,7 +1,12 @@
+import { AuthRequired } from "@/components/auth-required";
 import { AnswerWorkbench } from "../../components/answer-workbench";
-import { getAnswers } from "../../lib/api";
+import { getAnswers, isAuthenticated } from "../../lib/api";
 
 export default async function AnswersPage() {
+  if (!(await isAuthenticated())) {
+    return <AuthRequired title="Log in to use the answer bank" />;
+  }
+
   const answers = await getAnswers();
 
   return (

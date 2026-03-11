@@ -1,11 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
+import { requireRequestUser } from "@/lib/server/auth";
 import { getJobRecord, listApplicationRecords } from "@/lib/server/repository";
 
-export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const user = await requireRequestUser(request);
     const { id } = await params;
-    const [job, applications] = await Promise.all([getJobRecord(id), listApplicationRecords()]);
+    const [job, applications] = await Promise.all([getJobRecord(user.id, id), listApplicationRecords(user.id)]);
     if (!job) {
       return NextResponse.json({ detail: "job not found" }, { status: 404 });
     }

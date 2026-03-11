@@ -61,6 +61,7 @@ Env notes:
 - `OPENROUTER_MODEL` defaults to `google/gemini-2.5-flash`.
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` power the Supabase SDK integration.
 - `SUPABASE_SERVICE_ROLE_KEY` is optional but recommended for server-side writes if your RLS policies block the publishable key.
+- Supabase Auth email/password should be enabled if you want the built-in `/login` flow to work.
 
 ## Single-App API
 
@@ -103,6 +104,7 @@ Implemented endpoints:
 - The root of the repo is now the canonical Next.js app.
 - Existing `frontend/` and `backend/` folders are legacy scaffolding from the earlier split-app version.
 - The unified app now talks to Supabase through the Supabase SDK when Supabase env vars are present.
+- The app now supports per-user data isolation through Supabase Auth and a server-side session cookie.
 - Writes use table-level CRUD helpers instead of whole-store rewrites.
 - SQL bootstrap files live in [lib/server/migrations](/Users/thangtruong/Documents/auto-apply-jobs/lib/server/migrations) and should be run in the Supabase SQL Editor.
 - If Supabase env vars are not set, it falls back to the local JSON store in `.data/`.
@@ -120,14 +122,20 @@ Manual verification for persistence with Supabase:
 
 1. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` in `.env.local`.
 2. If your RLS policies are strict, also set `SUPABASE_SERVICE_ROLE_KEY` for server-side writes.
-3. Run the SQL in [lib/server/migrations/001_initial.sql](/Users/thangtruong/Documents/auto-apply-jobs/lib/server/migrations/001_initial.sql) in the Supabase SQL Editor.
-4. Run `npm install`.
-5. Run `npm run dev`.
-6. Open `http://localhost:3000/`.
-7. Confirm the health panel shows `Persistence: supabase`.
-8. Open `http://localhost:3000/profile` and save a profile change.
-9. Refresh the page and confirm the change persists.
-10. Check Supabase tables such as `profiles`, `job_sources`, `jobs`, `applications`, and `runs`.
+3. Run the SQL in [sql/001_initial.sql](/Users/thangtruong/Documents/auto-apply-jobs/sql/001_initial.sql) in the Supabase SQL Editor.
+4. If you already created tables from an older version of the app, also run:
+   - [sql/002_answer_context.sql](/Users/thangtruong/Documents/auto-apply-jobs/sql/002_answer_context.sql)
+   - [sql/003_user_scope.sql](/Users/thangtruong/Documents/auto-apply-jobs/sql/003_user_scope.sql)
+5. Enable Supabase Auth email/password if you want to use the built-in login page.
+6. Create a user account through `/login`.
+7. Log in and confirm each account sees its own profile and records only.
+8. Run `npm install`.
+9. Run `npm run dev`.
+10. Open `http://localhost:3000/`.
+11. Confirm the health panel shows `Persistence: supabase`.
+12. Open `http://localhost:3000/profile` and save a profile change.
+13. Refresh the page and confirm the change persists only for that logged-in user.
+14. Check Supabase tables such as `profiles`, `job_sources`, `jobs`, `applications`, and `runs`.
 
 Manual verification for Brave Search:
 
