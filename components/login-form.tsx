@@ -46,11 +46,11 @@ export function LoginForm() {
     <form className="form-grid" onSubmit={onSubmit}>
       <label className="field field-full">
         <span>Email</span>
-        <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+        <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
       </label>
       <label className="field field-full">
         <span>Password</span>
-        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" />
       </label>
       <div className="form-actions field-full">
         <button className="button-primary" type="submit" disabled={state === "loading"}>

@@ -11,13 +11,30 @@ export default async function SourcesPage() {
 
   return (
     <main className="page">
-      <section className="panel">
-        <div className="panel-header">
-          <h1>Sources</h1>
-          <p>Configure keywords, companies, locations, and manual URLs. Enabled sources participate in discovery runs.</p>
+      <section className="page-header">
+        <div>
+          <p className="eyebrow">Sources</p>
+          <h1>Discovery control room</h1>
+          <p>Manage the search channels that feed your opportunity queue, validate connector quality, and run targeted discovery on demand.</p>
         </div>
-        <SourceManager initialSources={sources} />
+        <div className="page-header-actions">
+          <span className="status-pill">{sources.filter((source) => source.enabled).length} enabled</span>
+        </div>
       </section>
+
+      <div className="toolbar">
+        <div className="toolbar-group">
+          <span className="filter-chip filter-chip-active">All sources</span>
+          <span className="filter-chip">Manual URLs</span>
+          <span className="filter-chip">Company pages</span>
+          <span className="filter-chip">Needs cleanup</span>
+        </div>
+        <div className="toolbar-group">
+          <span className="status-pill">Discovery remains review-first</span>
+        </div>
+      </div>
+
+      <SourceManager initialSources={sources} />
     </main>
   );
 }

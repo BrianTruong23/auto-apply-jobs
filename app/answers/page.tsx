@@ -11,13 +11,15 @@ export default async function AnswersPage() {
 
   return (
     <main className="page">
-      <section className="panel">
-        <div className="panel-header">
-          <h1>Answer Bank</h1>
-          <p>Store approved answers, reuse them when similar questions appear, and only escalate to LLM drafting when needed.</p>
+      <section className="page-header">
+        <div>
+          <p className="eyebrow">Answers</p>
+          <h1>Application Answers</h1>
+          <p>Manage approved responses, adapt them for specific roles, and review every suggested answer before it is used in an application.</p>
         </div>
-        <AnswerWorkbench initialAnswers={answers} />
       </section>
+
+      <AnswerWorkbench initialAnswers={answers} />
     </main>
   );
 }
